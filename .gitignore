@@ -1,0 +1,4 @@
+embeddings/*
+truth_clusters_cp/*
+AlgoLabel/data/*
+AlgoLabel/datasets/*.json
