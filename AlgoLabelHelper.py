@@ -18,11 +18,11 @@ import numpy as np
 class AlgoLabelHelper():
     def __init__(self):
         self.config = json.load(open(self.__getRelativePath('config.json')))
-        self.w2vDictionaryEmbeddings="embeddings/w2v/w2v_128_dict.emb"
-        self.w2vFileName ="embeddings/w2v/w2vEmbeddings.json"
-        self.safeFileName ="embeddings/safe/safeEmbeddings.json"
+        self.w2vDictionaryEmbeddings="Embeddings/w2v/w2v_128_dict.emb"
+        self.w2vFileName ="Embeddings/w2v/w2vEmbeddings.json"
+        self.safeFileName ="Embeddings/safe/safeEmbeddings.json"
 
-        self.config['raw_dataset'] = 'datasets/truth_clusters_cp.json'
+        self.config['raw_dataset'] = 'datasets/raw_dataset.json'
         self.__persistConfig()
 
     def transformFolderStructureValidFormat(self, pathFolder:str):

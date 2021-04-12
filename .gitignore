@@ -1,4 +1,7 @@
-embeddings/*
-truth_clusters_cp/*
+Embeddings/*
+RawDataset/*
 AlgoLabel/data/*
 AlgoLabel/datasets/*.json
+env/*
+.vscode/*
+*.pyc
