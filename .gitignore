@@ -1,5 +1,4 @@
-Embeddings/*
-RawDataset/*
+Data/*
 AlgoLabel/data/*
 AlgoLabel/datasets/*.json
 env/*

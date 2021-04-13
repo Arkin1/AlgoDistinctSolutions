@@ -36,7 +36,7 @@ class W2VEmbeddingsLoader(EmbeddingsLoader):
         return 128
     
     def __GetRelativePath(self, path):
-        return f'Embeddings/w2v/{path}'
+        return f'Data/Embeddings/w2v/{path}'
 
 
 class SafeEmbeddingsLoader(EmbeddingsLoader):
@@ -55,6 +55,6 @@ class SafeEmbeddingsLoader(EmbeddingsLoader):
         return 100
 
     def __GetRelativePath(self, path):
-        return f'Embeddings/safe/{path}'
+        return f'Data/Embeddings/safe/{path}'
         
 

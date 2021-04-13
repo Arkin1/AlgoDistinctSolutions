@@ -18,9 +18,9 @@ import numpy as np
 class AlgoLabelHelper():
     def __init__(self):
         self.config = json.load(open(self.__getRelativePath('config.json')))
-        self.w2vDictionaryEmbeddings="Embeddings/w2v/w2v_128_dict.emb"
-        self.w2vFileName ="Embeddings/w2v/w2vEmbeddings.json"
-        self.safeFileName ="Embeddings/safe/safeEmbeddings.json"
+        self.w2vDictionaryEmbeddings="Data/Embeddings/w2v/w2v_128_dict.emb"
+        self.w2vFileName ="Data/Embeddings/w2v/w2vEmbeddings.json"
+        self.safeFileName ="Data/Embeddings/safe/safeEmbeddings.json"
 
         self.config['raw_dataset'] = 'datasets/raw_dataset.json'
         self.__persistConfig()
