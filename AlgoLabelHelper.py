@@ -21,7 +21,7 @@ class AlgoLabelHelper():
         self.w2vDictionaryEmbeddings="Data/Embeddings/w2v/w2v_128_dict.emb"
         self.w2vFileName ="Data/Embeddings/w2v/w2vEmbeddings.json"
         self.safeFileName ="Data/Embeddings/safe/safeEmbeddings.json"
-
+        self.tfidfFileName ="Data/Embeddings/tfidf/tfidfEmbeddings.json"
         self.config['raw_dataset'] = 'datasets/raw_dataset.json'
         self.__persistConfig()
 
@@ -70,7 +70,27 @@ class AlgoLabelHelper():
         if('safe' in embeddings):
             self.__compute_safe_embeddings()
 
-    
+        if('tfidf' in embeddings):
+            self.__compute_tfidf_embeddings()
+
+    def __compute_tfidf_embeddings(self):
+        print("\tComputing TFIDF embeddings...")
+        splits = [self.__getTrainJson(), self.__getTestJson(), self.__getDevJson()]
+        
+        for split in splits:
+            for problem in split:
+                tokens = problem['tokens']
+
+                tfidf_embeddings.append({
+                        "index":problem["index"],
+                        "label":problem["tags"][0],
+                        "tokens": tokens
+                    })
+        
+        json.dump(tfidf_embeddings, open(self.tfidfFileName, 'w'), indent=4)
+
+        
+
     def __compute_w2v_embeddings(self):
         print("\tComputing w2v embeddings...")
 
