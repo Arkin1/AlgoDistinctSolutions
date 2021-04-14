@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import json
 import numpy as np
 from gensim.models import Word2Vec
-from sklearn.feature_extraction.text import TfidfVectorizer
+
 class EmbeddingsLoader(ABC):
 
     @abstractmethod
@@ -60,29 +60,19 @@ class SafeEmbeddingsLoader(EmbeddingsLoader):
         
 
 class TfidfEmbeddingsLoader(EmbeddingsLoader):
-    def __init__(self):
-        self.pattern = "\w+|\+|-|=|!="
-        self.stop_w = ["(", ")", ".", "#", ";", ",", ">>", "<<", "{", "}", "[", "]", "'.'", "\"...\""]
+    
     def GetEmbeddings(self):
         problems = json.load(open(self.__GetRelativePath("tfidfEmbeddings.json"), "r"))
 
-        vectorizer = TfidfVectorizer(token_pattern=self.pattern, stop_words=self.stop_w)
-        
-        matrix = TfidfVectorizer.fit([" ".join(problem["tokens"]) for problem in problems])
-
-        i = 0
         for problem in problems:
-            tokens = problem['tokens']
-            
             yield {
                     "index":problem["index"],
                     "label":problem["label"],
-                    "embeddings": matrix[i]
+                    "embeddings": problem["tfidf"]
                 }
-            i += 1
             
     def GetSize(self):
         return 128
     
     def __GetRelativePath(self, path):
-        return f'Data/Embeddings/w2v/{path}'
+        return f'Data/Embeddings/tfidf/{path}'

@@ -1,7 +1,7 @@
 from sklearn.cluster import KMeans, SpectralClustering
 from ValidationMethods import ClusteringValidationMethod
 from ValidationMethods import EstimatorValidationMethod
-from EmbeddingsLoader import W2VEmbeddingsLoader, SafeEmbeddingsLoader
+from EmbeddingsLoader import W2VEmbeddingsLoader, SafeEmbeddingsLoader, TfidfEmbeddingsLoader
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from xgboost import XGBClassifier

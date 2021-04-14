@@ -10,6 +10,7 @@ from AlgoLabel.models.utils import preprocess_dataset, split_dataset, prepare_em
 from AlgoLabel.models.utils import prepare_input, train, test
 
 from gensim.models import Word2Vec
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 import json
 import numpy as np
@@ -74,19 +75,37 @@ class AlgoLabelHelper():
             self.__compute_tfidf_embeddings()
 
     def __compute_tfidf_embeddings(self):
+
         print("\tComputing TFIDF embeddings...")
         splits = [self.__getTrainJson(), self.__getTestJson(), self.__getDevJson()]
         
+        tfidf_tokens = []
+
         for split in splits:
             for problem in split:
-                tokens = problem['tokens']
+                tfidf_tokens.append(" ".join(problem['tokens']))
+
+        pattern = "\w+|\+|-|=|!="
+        stop_w = ["(", ")", ".", "#", ";", ",", ">>", "<<", "{", "}", "[", "]", "'.'", "\"...\""]
+        
+        vectorizer = TfidfVectorizer(token_pattern=pattern, stop_words=stop_w)
+
+        matrix = vectorizer.fit_transform(np.array(tfidf_tokens))
+
+        tfidf_embeddings = []
+        
+        index = 0
+        for split in splits:
+            for problem in split:
 
                 tfidf_embeddings.append({
                         "index":problem["index"],
                         "label":problem["tags"][0],
-                        "tokens": tokens
+                        "tfidf": matrix[index].toarray().tolist()
                     })
-        
+                index+=1
+
+        os.makedirs(os.path.dirname(self.tfidfFileName), exist_ok=True)
         json.dump(tfidf_embeddings, open(self.tfidfFileName, 'w'), indent=4)
 
         

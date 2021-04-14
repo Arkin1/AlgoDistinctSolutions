@@ -74,7 +74,7 @@ class EstimatorValidationMethod:
                 print(f'Validating problem {problem} using estimator {estimator}')
                 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = testSize, random_state=42)
 
-                print(f"Cross validation score : {cross_val_score(estimator, X_train, Y_train, random_state=42)}")
+                print(f"Cross validation score : {cross_val_score(estimator, X_train, Y_train)}")
 
                 estimator.fit(X_train, Y_train)
 
