@@ -76,7 +76,7 @@ class ClusteringValidationMethod:
         
 
 
-    def validateSemiSupervised(self, embeddingsLoaders, clusterAlgo):
+    def validateSemiSupervised(self, embeddingsLoaders, clusterAlgo, classifiers):
         print(f'Validating using the semiSupervised validation method using embeddings {embeddingsLoaders}:')
 
         if(len(embeddingsLoaders) <=1):
@@ -85,13 +85,14 @@ class ClusteringValidationMethod:
 
         problemDicts = []
 
+        for i in range(0, len(embeddingsLoaders)):
+            if(type(embeddingsLoaders[i]) is W2VEmbeddingsLoader or type(embeddingsLoaders[i]) is TfidfEmbeddingsLoader):
+                embeddingsLoaders[0], embeddingsLoaders[i] = embeddingsLoaders[i], embeddingsLoaders[0]
+                break
+
         for embeddingsLoader in embeddingsLoaders:
             problemDicts.append(SplitEmbeddingsDataPerProblem(embeddingsLoader))
-        
-        for i in range(0, len(problemDicts)):
-            if(type(problemDicts[i]) is W2VEmbeddingsLoader or type(problemDicts[i]) is TfIdfEmbeddingsLoader):
-                problemDicts[0], problemDicts[i] = problemDicts[i], problemDicts[0]
-                break
+    
            
         for problem , data in problemDicts[0].items():
             print(f'Validating problem {problem} using cluster algorithm {clusterAlgo}')
@@ -102,13 +103,15 @@ class ClusteringValidationMethod:
             X_train_indices, X_test_indices, Y_train, Y_test = train_test_split(X_all_indices, Y_all_indices, test_size = 0.3, random_state=42)
             
             Xn = []
+            Xn_test = []
             
             for i in range(len(embeddingsLoaders)):
                 Xn.append([])
+                Xn_test.append([])
 
             Y = []
+            Y_test=[]
             for index in data['indexes']:
-                if(index in X_train_indices):
                     indexInAllEmbeddings = True
 
                     for problemDict in problemDicts:
@@ -120,9 +123,17 @@ class ClusteringValidationMethod:
                         i = 0
                         for problemDict in problemDicts:
                             problemData = problemDict[problem]
-                            Xn[i].append(problemData['X'][problemData['indexes'].index(index)])
+                            if(index in X_train_indices):
+                                 Xn[i].append(problemData['X'][problemData['indexes'].index(index)])
+                            else:
+                                 Xn_test[i].append(problemData['X'][problemData['indexes'].index(index)])
                             i+=1
-                        Y.append(data['Y'][data['indexes'].index(index)])
+
+                        if(index in X_train_indices):
+                             Y.append(data['Y'][data['indexes'].index(index)])
+                        else:
+                             Y_test.append(data['Y'][data['indexes'].index(index)])
+
             
             allLabels = list(set(Y))
             k = len(allLabels)
@@ -169,11 +180,12 @@ class ClusteringValidationMethod:
             Y_result = []
             for i in groupedPaths[best_key1]:
                 labels.append(label_n[i][0])
-                X_result.append(Xn[i])
+                X_result.append(Xn[0][i])
                 Y_result.append(Y[i])
 
             for i in groupedPaths[best_key2]:
                 labels.append(label_n[i][0])
+                X_result.append(Xn[0][i])
                 Y_result.append(Y[i])
 
             bestScore = -1
@@ -190,18 +202,21 @@ class ClusteringValidationMethod:
                     bestScore = score
                     bestPermutation = permutedLabels
 
-            estimator = RandomForestClassifier()
 
-            estimator.fit(X_result, bestPermutation)
 
-            X_test = []
+            print(classification_report(Y_result, bestPermutation))
 
-            for i in X_test_indices:
-                X_test.append(Xn[0][i])
+            for estimator in classifiers:
+                print(f"Validating the semi supervised clustering method with classifier {estimator}")
+                estimator.fit(np.array(X_result), np.array(bestPermutation))
 
-            labels = estimator.predict(Y_test)
+                X_test = Xn_test[0]
 
-            print(classification_report(Y_test, labels))
+                labels = estimator.predict(np.array(X_test))
+
+                print("Validating the semi supervised clustering method using estimator")
+
+                print(classification_report(Y_test, labels))
 
     def validateClusteringMultiView(self, embeddingsLoaders):
 
@@ -241,7 +256,7 @@ class ClusteringValidationMethod:
 
             multiView = MVSC(k)
 
-            labels = multiView.fit(np.array(Xn), np.array([False, False, False])).clustering
+            labels = multiView.fit([np.array(Xn[0]),np.array(Xn[1])], np.array([False, False])).embedding_
 
             bestScore = -1
             for permutation in itertools.permutations(range(0, k)):
@@ -257,7 +272,7 @@ class ClusteringValidationMethod:
                     bestScore = score
                     bestPermutation = permutedLabels
 
-            print(classification_report(Y_result, bestPermutation))
+            print(classification_report(Y, bestPermutation))
 
 
 
