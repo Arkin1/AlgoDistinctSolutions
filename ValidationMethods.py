@@ -6,6 +6,8 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 import math
+from multiview import MVSC
+
 def SplitEmbeddingsDataPerProblem(embeddingsLoader:EmbeddingsLoader):
     problemDict = {}
 
@@ -177,6 +179,64 @@ class ClusteringValidationMethod:
                     bestPermutation = permutedLabels
 
             print(classification_report(Y_result, bestPermutation))
+
+    def validateClusteringMultiView(self, embeddingsLoaders):
+
+        print(f'Validating using the multiview clustering validation method using embeddings {embeddingsLoaders}:')
+
+        problemDicts = []
+
+        for embeddingsLoader in embeddingsLoaders:
+            problemDicts.append(SplitEmbeddingsDataPerProblem(embeddingsLoader))
+           
+        for problem , data in problemDicts[0].items():
+            print(f'Validating problem {problem}')
+            Xn = []
+            
+            for i in range(len(embeddingsLoaders)):
+                Xn.append([])
+
+            Y = []
+            for index in data['indexes']:
+                indexInAllEmbeddings = True
+
+                for problemDict in problemDicts:
+                    if index not in problemDict[problem]['indexes']:
+                        indexInAllEmbeddings = False
+                        break
+
+                if(indexInAllEmbeddings):
+                    i = 0
+                    for problemDict in problemDicts:
+                        problemData = problemDict[problem]
+                        Xn[i].append(problemData['X'][problemData['indexes'].index(index)])
+                        i+=1
+                    Y.append(data['Y'][data['indexes'].index(index)])
+            
+            allLabels = list(set(Y))
+            k = len(allLabels)
+
+            multiView = MVSC(k)
+
+            labels = multiView.fit(np.array(Xn), np.array([False, False, False])).clustering
+
+            bestScore = -1
+            for permutation in itertools.permutations(range(0, k)):
+                permutedLabels = []
+
+                for index in range(len(labels)):
+                    permutedLabels.append(allLabels[permutation[labels[index]]])
+                
+                permutedLabels = np.array(permutedLabels)
+                score = f1_score(permutedLabels, Y, average='weighted')
+
+                if(score > bestScore):
+                    bestScore = score
+                    bestPermutation = permutedLabels
+
+            print(classification_report(Y_result, bestPermutation))
+
+
 
         
 class EstimatorValidationMethod:

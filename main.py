@@ -45,11 +45,17 @@ estimatorValidation = EstimatorValidationMethod()
 estimatorValidation.validate(SafeEmbeddingsLoader(), [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)], 0.3)
 estimatorValidation.validate(W2VEmbeddingsLoader(), [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)], 0.3)
 estimatorValidation.validate(TfidfEmbeddingsLoader(), [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)], 0.3)
+
+
 '''
-
-clusteringValidationMethod = ClusteringValidationMethod()
+kmeans = KMeans(n_clusters = -1)
 spectralClustering = SpectralClustering(n_clusters= -1)
+clusteringValidationMethod = ClusteringValidationMethod()
+clusteringValidationMethod.validateSemiSupervised([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(), SafeEmbeddingsLoader()], SpectralClustering())
 
-clusteringValidationMethod.validateSemiSupervised([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(), SafeEmbeddingsLoader()], AgglomerativeClustering(linkage='complete', affinity='cosine'))
+#clusteringValidationMethod = ClusteringValidationMethod()
+
+#clusteringValidationMethod.validateClusteringMultiView([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(), SafeEmbeddingsLoader()])
+
 
 
