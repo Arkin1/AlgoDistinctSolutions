@@ -48,13 +48,14 @@ estimatorValidation.validate(TfidfEmbeddingsLoader(), [RandomForestClassifier(),
 
 
 '''
-#kmeans = KMeans(n_clusters = -1)
-#spectralClustering = SpectralClustering(n_clusters= -1)
-#clusteringValidationMethod = ClusteringValidationMethod()
-#clusteringValidationMethod.validateSemiSupervised([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(), SafeEmbeddingsLoader()], kmeans, [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)])
+kmeans = KMeans(n_clusters = -1)
+spectralClustering = SpectralClustering(n_clusters= -1)
+clusteringValidationMethod = ClusteringValidationMethod()
+clusteringValidationMethod.validateSemiSupervised([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(), SafeEmbeddingsLoader()], kmeans, [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)])
 
+'''
 clusteringValidationMethod = ClusteringValidationMethod()
 clusteringValidationMethod.validateClusteringMultiView([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(),  SafeEmbeddingsLoader()])
-
+'''
 
 

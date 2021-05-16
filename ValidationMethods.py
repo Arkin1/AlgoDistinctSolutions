@@ -176,16 +176,20 @@ class ClusteringValidationMethod:
                             best_key2 = key2
 
             labels = []
-            X_result = []
+            X_result = [[], [], []]
             Y_result = []
             for i in groupedPaths[best_key1]:
                 labels.append(label_n[i][0])
-                X_result.append(Xn[0][i])
+                X_result[0].append(Xn[0][i])
+                X_result[1].append(Xn[1][i])
+                X_result[2].append(Xn[2][i])
                 Y_result.append(Y[i])
 
             for i in groupedPaths[best_key2]:
                 labels.append(label_n[i][0])
-                X_result.append(Xn[0][i])
+                X_result[0].append(Xn[0][i])
+                X_result[1].append(Xn[1][i])
+                X_result[2].append(Xn[2][i])
                 Y_result.append(Y[i])
 
             bestScore = -1
@@ -206,17 +210,49 @@ class ClusteringValidationMethod:
 
             print(classification_report(Y_result, bestPermutation))
 
-            for estimator in classifiers:
-                print(f"Validating the semi supervised clustering method with classifier {estimator}")
-                estimator.fit(np.array(X_result), np.array(bestPermutation))
+            disagreedSolutions_X = Xn_test
+            disagreedSolutions_Y = Y_test
+            agreedSolutions_X = X_result
+            agreedSolutions_Y = bestPermutation.tolist()
 
-                X_test = Xn_test[0]
+            lastIterationSize = 0
+            while(len(disagreedSolutions_Y) > 0 and len(agreedSolutions_Y) - lastIterationSize > 20):
 
-                labels = estimator.predict(np.array(X_test))
+                lastIterationSize = len(agreedSolutions_Y)
 
-                print("Validating the semi supervised clustering method using estimator")
+                predictedSolutions =[]
+                for i in range(len(classifiers)):
+                    classifiers[i].fit(np.array(agreedSolutions_X[i]), np.array(agreedSolutions_Y))
+                    predictedSolutions.append(classifiers[i].predict(np.array(disagreedSolutions_X[i])))
 
-                print(classification_report(Y_test, labels))
+                predictedSolutions = np.array(predictedSolutions).T
+
+                nextDisagreedSolutions_X=[[],[],[]]
+                nextDisagreedSolutions_Y = []
+                for solutionIndex in range(len(predictedSolutions)):
+                    allAgree = True
+
+                    for i in range(1, len(classifiers)):
+                        if(not np.char.equal(predictedSolutions[solutionIndex][i-1], predictedSolutions[solutionIndex][i])):
+                            allAgree = False
+                            break
+
+                    if(allAgree):
+                        for i in range(len(classifiers)):
+                            agreedSolutions_X[i].append(disagreedSolutions_X[i][solutionIndex])
+                        agreedSolutions_Y.append(str(predictedSolutions[solutionIndex][0]))
+                        Y_result.append(Y_test[solutionIndex])
+                    else:
+                        for i in range(len(classifiers)):
+                            nextDisagreedSolutions_X[i].append(disagreedSolutions_X[i][solutionIndex])
+                            nextDisagreedSolutions_Y.append(Y_test[solutionIndex])
+
+                disagreedSolutions_X = nextDisagreedSolutions_X
+                disagreedSolutions_Y = nextDisagreedSolutions_Y
+
+                print(classification_report(agreedSolutions_Y,  Y_result))
+
+                    
 
     def validateClusteringMultiView(self, embeddingsLoaders):
 
