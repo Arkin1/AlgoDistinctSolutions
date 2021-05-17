@@ -192,6 +192,15 @@ class ClusteringValidationMethod:
                 X_result[2].append(Xn[2][i])
                 Y_result.append(Y[i])
 
+            for key, v in groupedPaths.items():
+                if(not (key == best_key1 or key == best_key2)):
+                    for i in v:
+                        Xn_test[0].append(Xn[0][i])
+                        Xn_test[1].append(Xn[1][i])
+                        Xn_test[2].append(Xn[2][i])
+                        Y_test.append(Y[i])
+
+
             bestScore = -1
             for permutation in itertools.permutations(range(0, k)):
                 permutedLabels = []
@@ -205,8 +214,6 @@ class ClusteringValidationMethod:
                 if(score > bestScore):
                     bestScore = score
                     bestPermutation = permutedLabels
-
-
 
             print(classification_report(Y_result, bestPermutation))
 
@@ -237,15 +244,15 @@ class ClusteringValidationMethod:
                             allAgree = False
                             break
 
-                    if(allAgree):
+                    if(allAgree== True):
                         for i in range(len(classifiers)):
                             agreedSolutions_X[i].append(disagreedSolutions_X[i][solutionIndex])
                         agreedSolutions_Y.append(str(predictedSolutions[solutionIndex][0]))
-                        Y_result.append(Y_test[solutionIndex])
+                        Y_result.append(disagreedSolutions_Y[solutionIndex])
                     else:
                         for i in range(len(classifiers)):
                             nextDisagreedSolutions_X[i].append(disagreedSolutions_X[i][solutionIndex])
-                            nextDisagreedSolutions_Y.append(Y_test[solutionIndex])
+                        nextDisagreedSolutions_Y.append(disagreedSolutions_Y[solutionIndex])
 
                 disagreedSolutions_X = nextDisagreedSolutions_X
                 disagreedSolutions_Y = nextDisagreedSolutions_Y
