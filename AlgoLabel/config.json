@@ -27,26 +27,10 @@
     "split": {
         "percentage": 0.15,
         "labels": [
-            "evaluare$stack",
-            "schi$seg_tree",
-            "cmmdc$Euclid-scaderi",
-            "ctc$kosaraju",
-            "inversmodular$euler_toutient",
-            "stramosi$dp_log",
-            "ctc$tarjan",
-            "inversmodular$extended_euclid_algo",
-            "cmmdc$Euclid-impartiri",
-            "apm$kruskal",
-            "apm$prim",
-            "cmap$divide_conquer",
-            "cmap$distance_search",
-            "schi$aib",
-            "inv$aib",
-            "strmatch$kmp",
-            "strmatch$rk",
-            "inv$merge",
-            "stramosi$lant",
-            "evaluare$recursive"
+            "schi$100",
+            "stramosi$100",
+            "inv$100",
+            "cmmdc$100"
         ],
         "difficulty_based": false
     },
@@ -67,7 +51,7 @@
                 "ignore_path_ends": true
             },
             "safe": {
-                "model": "safe/data/safe_trained_X86.pb",
+                "model": "safe/data/safe.pb",
                 "instr_conv": "safe/data/i2v/word2id.json",
                 "max_instr": 150
             }
@@ -90,7 +74,7 @@
             }
         }
     },
-    "pretrain": "word2vec_code",
+    "pretrain": "safe",
     "encoders": {
         "lstm": {
             "hidden_size": 100,

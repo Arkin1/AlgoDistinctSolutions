@@ -65,14 +65,14 @@ class AlgoLabelHelper():
 
         print("Computing embeddings...")
 
+        if('tfidf' in embeddings):
+            self.__compute_tfidf_embeddings()
+
         if('w2v' in embeddings):
             self.__compute_w2v_embeddings()
         
         if('safe' in embeddings):
             self.__compute_safe_embeddings()
-
-        if('tfidf' in embeddings):
-            self.__compute_tfidf_embeddings()
 
     def __compute_tfidf_embeddings(self):
 
@@ -119,7 +119,6 @@ class AlgoLabelHelper():
         os.chdir("AlgoLabel")
         prepare_embeddings(self.config)
         os.chdir("..")
-
         
         os.makedirs(os.path.dirname(self.w2vDictionaryEmbeddings), exist_ok=True)
         copyfile(self.__getRelativePath("data/embeddings/w2v_code_128.emb"), self.w2vDictionaryEmbeddings)
