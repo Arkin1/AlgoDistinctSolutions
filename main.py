@@ -51,7 +51,7 @@ estimatorValidation.validate(TfidfEmbeddingsLoader(), [RandomForestClassifier(),
 kmeans = KMeans(n_clusters = -1)
 spectralClustering = SpectralClustering(n_clusters= -1)
 clusteringValidationMethod = ClusteringValidationMethod()
-clusteringValidationMethod.validateSemiSupervised([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(), SafeEmbeddingsLoader()], spectralClustering, [XGBClassifier(verbosity = 0), SVC(), RandomForestClassifier()])
+clusteringValidationMethod.validateSemiSupervised([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(), SafeEmbeddingsLoader()], [spectralClustering, kmeans, spectralClustering], [SVC(kernel='rbf'), SVC(kernel='rbf'), SVC(kernel='rbf')])
 
 '''
 clusteringValidationMethod = ClusteringValidationMethod()

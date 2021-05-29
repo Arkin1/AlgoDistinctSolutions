@@ -76,7 +76,7 @@ class ClusteringValidationMethod:
         
 
 
-    def validateSemiSupervised(self, embeddingsLoaders, clusterAlgo, classifiers):
+    def validateSemiSupervised(self, embeddingsLoaders, clusterAlgos, classifiers):
         print(f'Validating using the semiSupervised validation method using embeddings {embeddingsLoaders}:')
 
         if(len(embeddingsLoaders) <=1):
@@ -95,7 +95,7 @@ class ClusteringValidationMethod:
     
            
         for problem , data in problemDicts[0].items():
-            print(f'Validating problem {problem} using cluster algorithm {clusterAlgo}')
+            print(f'Validating problem {problem} using cluster algorithms {clusterAlgos}')
 
             X_all_indices = data['indexes']
             Y_all_indices = data['Y']
@@ -138,12 +138,15 @@ class ClusteringValidationMethod:
             allLabels = list(set(Y))
             k = len(allLabels)
 
-            clusterAlgo.set_params(n_clusters = k)
+            for clusterAlgo in clusterAlgos:
+                clusterAlgo.set_params(n_clusters = k)
 
             label_n = []
 
+            index = 0
             for X in Xn:
-                label_n.append(clusterAlgo.fit(X).labels_)
+                label_n.append(clusterAlgos[index].fit(X).labels_)
+                index+=1
 
             label_n = np.array(label_n).T
 
