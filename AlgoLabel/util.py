@@ -12,7 +12,7 @@ import ast
 import itertools
 import pickle
 import random
-from subprocess import call
+from subprocess import run
 import shutil
 from nltk import word_tokenize
 import torch
@@ -397,8 +397,8 @@ def run_system_command(cmd: str,
     if verbose:
         sys.stdout.write("System cmd: {}\n".format(cmd))
     
-    cmd = cmd.split()    
-    rc = call(cmd, stdout=stdout, stderr=stderr)
+    cmd = cmd.split()
+    rc = run(cmd, stdout=stdout, stderr=stderr,shell=shell).returncode
     if err_msg and rc:
         sys.stderr.write(err_msg)
         exit(rc)

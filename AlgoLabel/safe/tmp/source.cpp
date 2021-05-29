@@ -1,58 +1,109 @@
+#include<bits/stdc++.h>
 #include <bits/stdc++.h>
-#include <bits/stdc++.h>
+
+
+
+#define NM 30002
+
 
 
 using namespace std;
 
-int aint[4 * 30005], clasament[30005], val;
-vector<int> v;
 
-int query( int p, int st, int dr ) {
-  if( st == dr ) {
-    return st;
-  }
-  int mid = ( st + dr ) / 2;
-  if( val <= aint[2*p] )
-    return query(2*p,st,mid);
-  else {
-    val -= aint[2*p];
-    return query(2*p+1,mid+1,dr);
-  }
+
+int n, l2n, v[NM], c[NM];
+
+
+
+int aib[NM];
+
+
+
+void upd(int a)
+
+{
+
+    for(int i = a; i <= n; i += i & (-i))
+
+        aib[i]--;
+
 }
 
-void update( int p, int st, int dr, int poz ) {
-  if( st == dr ) {
-    aint[p] = val;
-    return ;
-  }
-  int mid = (st + dr) / 2;
-  if( poz <= mid )
-    update(2*p,st,mid,poz);
-  else
-    update(2*p+1,mid+1,dr,poz);
-  aint[p] = aint[2*p] + aint[2*p+1];
+
+
+int qry(int a)
+
+{
+
+    int ans = 0;
+
+    for(int i = a; i >= 1; i -= i & (-i))
+
+        ans += aib[i];
+
+    return ans;
+
 }
 
-int main() {
-    ifstream fin("schi.in");
-    ofstream fout("schi.out");
-    int n, i, x;
-    fin>>n;
-    for( i = 1; i <= n; i ++ ) {
-      fin>>x;
-      v.push_back(x);
-      val = 1;
-      update(1,1,n,i);
+
+
+int main()
+
+{
+
+    ifstream fin ("schi.in");
+
+    ofstream fout ("schi.out");
+
+    fin >> n;
+
+    l2n = 1;
+
+    while(l2n * 2 <= n)
+
+        l2n *= 2;
+
+    for(int i = 1; i <= n; i++)
+
+        fin >> v[i];
+
+    for(int i = 1; i <= n; i++)
+
+        aib[i] = i & (-i);
+
+    for(int i = n; i >= 1; i--)
+
+    {
+
+        int l = 1, r = n, mid;
+
+        while(l < r)
+
+        {
+
+            mid = (l + r) / 2;
+
+            if(qry(mid) < v[i])
+
+                l = mid + 1;
+
+            else
+
+                r = mid;
+
+        }
+
+        c[l] = i;
+
+        upd(l);
+
     }
-    reverse(v.begin(),v.end());
-    for( i = 0; i < v.size(); i ++ ) {
-      val = v[i];
-      int poz = query(1,1,n);
-      val = 0;
-      update(1,1,n,poz);
-      clasament[poz] = n - i;
-    }
-    for( i = 1; i <= n; i ++ )
-      fout<<clasament[i]<<"\n";
+
+    for(int i = 1; i <= n; i++)
+
+        fout << c[i] << "\n";
+
     return 0;
+
 }
+

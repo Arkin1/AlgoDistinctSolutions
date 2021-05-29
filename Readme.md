@@ -17,5 +17,8 @@ Todo
 ## How to obtain the embeddings for a raw dataset
 
 
+Tell about cppchecker, g++, download safe model, create embeddings folder for w2v(modify gitignore as well)
+
+
 
 

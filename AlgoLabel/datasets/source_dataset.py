@@ -259,7 +259,7 @@ class SourceDataset(Dataset):
         # Run cppcheck
         cmd  = "cppcheck --enable=all --xml -q --output-file=\"{}\" {}"\
             .format(self.log_path, self.source_path)
-        run_system_command(cmd, verbose=False, split=False, shell=False)
+        run_system_command(cmd, verbose=False, split=False)
 
         try:
             lines        = code.split("\n")
