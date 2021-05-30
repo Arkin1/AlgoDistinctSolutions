@@ -19,7 +19,7 @@ class W2VEmbeddingsLoader(EmbeddingsLoader):
     def GetEmbeddings(self):
         model = Word2Vec.load(self.__GetRelativePath("w2v_128_dict.emb"))
         matrix = np.array(model.wv.vectors)
-        vocab = model.wv.key_to_index
+        vocab = model.wv.vocab
 
         problems = json.load(open(self.__GetRelativePath("w2vEmbeddings.json"), "r"))
 
@@ -29,7 +29,7 @@ class W2VEmbeddingsLoader(EmbeddingsLoader):
             yield {
                     "index":problem["index"],
                     "label":problem["label"],
-                    "embeddings": [matrix[vocab[token]].tolist() for token in tokens if(token in vocab)],
+                    "embeddings": [matrix[vocab[token].index].tolist() for token in tokens if(token in vocab)],
                     "tokens": tokens
                 }
             

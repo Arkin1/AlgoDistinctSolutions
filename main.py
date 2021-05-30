@@ -1,6 +1,7 @@
 from sklearn.cluster import KMeans, SpectralClustering, AgglomerativeClustering
 from ValidationMethods import ClusteringValidationMethod
 from ValidationMethods import EstimatorValidationMethod
+from PredictionMethods import PredictionMethods
 from EmbeddingsLoader import W2VEmbeddingsLoader, SafeEmbeddingsLoader, TfidfEmbeddingsLoader
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
@@ -9,6 +10,8 @@ from AlgoLabelHelper import AlgoLabelHelper
 from OriginalDataDownloader import OriginalDataDownloader
 import argparse
 import warnings
+import os
+import shutil
 warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser(description='Code embeddings in the context of different solutions in a competitive programming problem')
@@ -54,5 +57,22 @@ if(args.evaluate is True):
     clusteringValidationMethod = ClusteringValidationMethod()
     clusteringValidationMethod.validateClusteringMultiView([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(),  SafeEmbeddingsLoader()])
 
+'''
+predictionMethods = PredictionMethods()
+k = 2
+problem ="cmmdc"
+indices, Y = predictionMethods.validateSemiSupervised(problem, [W2VEmbeddingsLoader(), TfidfEmbeddingsLoader()], [KMeans(), SpectralClustering()], [XGBClassifier(verbosity = 0), SVC(kernel='rbf')], k)
 
+problemPath = f"Data/RawDataset/{problem}"
 
+if(os.path.exists(problemPath + "/clusters")):
+    shutil.rmtree(problemPath + "/clusters")
+
+os.mkdir(problemPath + "/clusters")
+
+for i in range(k):
+    os.mkdir(problemPath + "/clusters/" + str(i))
+
+for i in range(len(indices)):
+    shutil.copyfile(problemPath + '/100/' + f'{indices[i]}.cpp', problemPath + "/clusters/" + f'{Y[i]}/{indices[i]}.cpp')
+'''

@@ -27,10 +27,10 @@
     "split": {
         "percentage": 0.15,
         "labels": [
-            "schi$100",
+            "cmmdc$100",
             "stramosi$100",
-            "inv$100",
-            "cmmdc$100"
+            "schi$100",
+            "inv$100"
         ],
         "difficulty_based": false
     },

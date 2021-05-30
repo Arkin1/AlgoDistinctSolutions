@@ -1,9 +1,7 @@
 #include<bits/stdc++.h>
-#include <bits/stdc++.h>
+#include <iostream>
 
-
-
-#define NM 30002
+#include <fstream>
 
 
 
@@ -11,37 +9,73 @@ using namespace std;
 
 
 
-int n, l2n, v[NM], c[NM];
+ifstream fin("schi.in");
+
+ofstream fout("schi.out");
 
 
 
-int aib[NM];
+#define nmax 30100
+
+#define zeros(x) (x&(x^(x-1)))
 
 
 
-void upd(int a)
+int n,v[nmax],ans[nmax],y,i,t[nmax];
+
+
+
+void add(int poz,int x)
 
 {
 
-    for(int i = a; i <= n; i += i & (-i))
+    for( ; poz <=n; poz+=zeros(poz))
 
-        aib[i]--;
+        v[poz]+=x;
 
 }
 
 
 
-int qry(int a)
+int compute(int poz)
 
 {
 
-    int ans = 0;
+    int rez = 0;
 
-    for(int i = a; i >= 1; i -= i & (-i))
+    for( ; poz>0; poz-=zeros(poz))
 
-        ans += aib[i];
+        rez+=v[poz];
 
-    return ans;
+    return rez;
+
+}
+
+
+
+void bs(int ls,int ld,int x)
+
+{
+
+    if(ls>ld)
+
+        return;
+
+    int m = (ls+ld)>>1;
+
+    if(compute(m)>=x)
+
+    {
+
+        y = m;
+
+        bs(ls,m-1,x);
+
+    }
+
+    else
+
+    bs(m+1,ld,x);
 
 }
 
@@ -51,59 +85,35 @@ int main()
 
 {
 
-    ifstream fin ("schi.in");
+    fin>>n;
 
-    ofstream fout ("schi.out");
-
-    fin >> n;
-
-    l2n = 1;
-
-    while(l2n * 2 <= n)
-
-        l2n *= 2;
-
-    for(int i = 1; i <= n; i++)
-
-        fin >> v[i];
-
-    for(int i = 1; i <= n; i++)
-
-        aib[i] = i & (-i);
-
-    for(int i = n; i >= 1; i--)
+    for(i=1; i<=n; ++i)
 
     {
 
-        int l = 1, r = n, mid;
+        fin>>t[i];
 
-        while(l < r)
-
-        {
-
-            mid = (l + r) / 2;
-
-            if(qry(mid) < v[i])
-
-                l = mid + 1;
-
-            else
-
-                r = mid;
-
-        }
-
-        c[l] = i;
-
-        upd(l);
+        add(i,1);
 
     }
 
-    for(int i = 1; i <= n; i++)
+    for(i=n; i>0; --i)
 
-        fout << c[i] << "\n";
+    {
 
-    return 0;
+        bs(1,n,t[i]);
+
+        int m = y;
+
+        ans[m]=i;
+
+        add(m,-1);
+
+    }
+
+    for(i=1; i<=n; ++i)
+
+        fout<<ans[i]<<'\n';
 
 }
 
