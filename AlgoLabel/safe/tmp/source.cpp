@@ -1,81 +1,109 @@
-#include<bits/stdc++.h>
-#include <iostream>
+#include <bits/stdc++.h>
+#include <bits/stdc++.h>
 
-#include <fstream>
-
-
+#define Dim 100007
 
 using namespace std;
 
+ifstream f("evaluare.in");
 
+ofstream g("evaluare.out");
 
-ifstream fin("schi.in");
+int Expresie();
 
-ofstream fout("schi.out");
+int Termen();
 
+int Factor();
 
+char S[Dim];
 
-#define nmax 30100
-
-#define zeros(x) (x&(x^(x-1)))
-
-
-
-int n,v[nmax],ans[nmax],y,i,t[nmax];
+int indexxx;
 
 
 
-void add(int poz,int x)
+int Expresie()
 
 {
 
-    for( ; poz <=n; poz+=zeros(poz))
+    int r=Termen();
 
-        v[poz]+=x;
-
-}
-
-
-
-int compute(int poz)
-
-{
-
-    int rez = 0;
-
-    for( ; poz>0; poz-=zeros(poz))
-
-        rez+=v[poz];
-
-    return rez;
-
-}
-
-
-
-void bs(int ls,int ld,int x)
-
-{
-
-    if(ls>ld)
-
-        return;
-
-    int m = (ls+ld)>>1;
-
-    if(compute(m)>=x)
+    while(S[indexxx]=='+'||S[indexxx]=='-')
 
     {
 
-        y = m;
+        indexxx++;
 
-        bs(ls,m-1,x);
+        if(S[indexxx-1]=='+') r+=Termen();
+
+        else r-=Termen();
 
     }
 
-    else
+    return r;
 
-    bs(m+1,ld,x);
+}
+
+
+
+int Termen()
+
+{
+
+    int r=Factor();
+
+    while(S[indexxx]=='/'||S[indexxx]=='*')
+
+    {
+
+        indexxx++;
+
+        if(S[indexxx-1]=='/') r/=Factor();
+
+        else r*=Factor();
+
+    }
+
+    return r;
+
+}
+
+
+
+int Factor()
+
+{
+
+    int sgn=1;
+
+    while(S[indexxx]=='-') sgn=-sgn,indexxx++;
+
+
+
+    if(S[indexxx]=='(')
+
+    {
+
+        indexxx++;
+
+        int r=Expresie();
+
+        indexxx++;
+
+        return r*sgn;
+
+    }
+
+    int r=0;
+
+
+
+    while(S[indexxx]>='0'&&S[indexxx]<='9')
+
+    r=r*10+(S[indexxx]-'0'),indexxx++;
+
+
+
+    return r;
 
 }
 
@@ -85,35 +113,15 @@ int main()
 
 {
 
-    fin>>n;
+    freopen("evaluare.in","r",stdin); freopen("evaluare.out","w",stdout);
 
-    for(i=1; i<=n; ++i)
+        cin.getline(S,Dim);
 
-    {
+    g<<Expresie();
 
-        fin>>t[i];
 
-        add(i,1);
 
-    }
-
-    for(i=n; i>0; --i)
-
-    {
-
-        bs(1,n,t[i]);
-
-        int m = y;
-
-        ans[m]=i;
-
-        add(m,-1);
-
-    }
-
-    for(i=1; i<=n; ++i)
-
-        fout<<ans[i]<<'\n';
+    return 0;
 
 }
 

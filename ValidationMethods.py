@@ -6,6 +6,7 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.base import clone
 import math
 from multiview import MVSC
 
@@ -83,6 +84,8 @@ class ClusteringValidationMethod:
             print("There must be at least two embeddings")
             raise Exception()
 
+        estimators = [clone(estimator) for estimator in estimators]
+        
         problemDicts = []
 
         for i in range(0, len(embeddingsLoaders)):
@@ -329,6 +332,8 @@ class EstimatorValidationMethod:
         print(f'Validating using the estimator validation method using embeddings {embeddingsLoader}:')
         problemDict = SplitEmbeddingsDataPerProblem(embeddingsLoader)
         
+        estimators = [clone(estimator) for estimator in estimators]
+
         for problem , data in problemDict.items():
             X = np.array(data['X'])
             Y = np.array(data['Y'])
@@ -336,6 +341,8 @@ class EstimatorValidationMethod:
             for estimator in estimators:
                 print(f'Validating problem {problem} using estimator {estimator}')
                 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = testSize, random_state=42)
+                
+                estimator = clone(estimator)
 
                 print(f"Cross validation score : {cross_val_score(estimator, X_train, Y_train)}")
 

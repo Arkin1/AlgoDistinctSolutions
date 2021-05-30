@@ -27,10 +27,28 @@
     "split": {
         "percentage": 0.15,
         "labels": [
-            "cmmdc$100",
-            "stramosi$100",
-            "schi$100",
-            "inv$100"
+            "evaluare$Stack",
+            "inv$BinaryIndexedTree",
+            "cmap$DivideConquer",
+            "schi$SegmentTree+1AVL+5Treap",
+            "inv$MergeSort",
+            "stramosi$OfflineAnswering",
+            "inversmodular$EulerToutient",
+            "evaluare$Recursive",
+            "strmatch$RabbinKarp",
+            "ctc$Kosaraju",
+            "cmmdc$Brute",
+            "schi$BinaryIndexedTree",
+            "inversmodular$ExtendedEuclidAlgo",
+            "inv$SegmentTree",
+            "cmap$DistanceSearch",
+            "apm$Kruskal",
+            "ctc$Tarjan",
+            "cmmdc$Euclid",
+            "stramosi$BinaryLifting",
+            "strmatch$Kmp",
+            "apm$Prim",
+            "cmmdc$Subtract"
         ],
         "difficulty_based": false
     },
