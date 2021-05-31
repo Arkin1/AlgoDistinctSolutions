@@ -10,105 +10,95 @@ from sklearn.base import clone
 import math
 from multiview import MVSC
 
-def SplitEmbeddingsDataPerProblem(embeddingsLoader:EmbeddingsLoader):
-    problemDict = {}
 
-    for solution in embeddingsLoader.GetEmbeddings():
-        functionEmbeddings = np.array(solution["embeddings"])
-        solutionEmbedding = np.mean(functionEmbeddings, 0)
+def checkCombinationAllDistinct(combination):
 
-        problem = solution['label'].split("$")[0]
-        if(problem not in problemDict):
-            problemDict[problem] = {'indexes':[], 'X' : [], 'Y': []}
+    for x in combination:
+        for y in combination:
+            if x != y:
+                clustersX = x.split("$")
+                clustersY = y.split("$")
 
-        problemDict[problem]['indexes'].append(solution['index'])
-        problemDict[problem]['X'].append(solutionEmbedding)
-        problemDict[problem]['Y'].append(solution['label'])
-    
-    return problemDict
+                for i in range(len(clustersX)):
+                    if(clustersX[i] == clustersY[i]):
+                        return False
+    return True
 
 class ClusteringValidationMethod:
     
-    def validateK(self, embeddingsLoader:EmbeddingsLoader, clusterAlgos):
-        print(f'Validating using the known k clustering validation method using embeddings {embeddingsLoader}:')
-        problemDict = SplitEmbeddingsDataPerProblem(embeddingsLoader)
+    def validateK(self, embeddings, clusterAlgo):
+        print(f"Validating using the known k clustering validation method using embeddings {embeddings['name']}:")
+        problemDict = embeddings['problemDict']
         
+        problemValidationData = {}
         for problem , data in problemDict.items():
             X = np.array(data['X'])
             Y = np.array(data['Y'])
 
-            for clusterAlgo in clusterAlgos:
-                allLabels = list(set(Y))
-                k = len(allLabels)
             
-                clusterAlgo.set_params(n_clusters = k)
+            allLabels = list(set(Y))
+            k = len(allLabels)
+        
+            clusterAlgo.set_params(n_clusters = k)
 
-                print(f'Validating problem {problem} using cluster algorithm {clusterAlgo}')
+            print(f'Validating problem {problem} using cluster algorithm {type(clusterAlgo).__name__}')
 
-                clusterAlgo.fit(X)
-                labels = clusterAlgo.labels_
+            clusterAlgo.fit(X)
+            labels = clusterAlgo.labels_
+            
+            bestScore = -1
+
+            for permutation in itertools.permutations(range(0, k)):
+                permutedLabels = []
+
+                for index in range(len(labels)):
+                    permutedLabels.append(allLabels[permutation[labels[index]]])
                 
-                bestScore = -1
+                permutedLabels = np.array(permutedLabels)
+                score = f1_score(permutedLabels, Y, average='weighted')
 
-                for permutation in itertools.permutations(range(0, k)):
-                    permutedLabels = []
+                if(score > bestScore):
+                    bestScore = score
+                    bestPermutation = permutedLabels
 
-                    for index in range(len(labels)):
-                        permutedLabels.append(allLabels[permutation[labels[index]]])
-                    
-                    permutedLabels = np.array(permutedLabels)
-                    score = f1_score(permutedLabels, Y, average='weighted')
+            problemValidationData[problem] = (Y, bestPermutation)
 
-                    if(score > bestScore):
-                        bestScore = score
-                        bestPermutation = permutedLabels
-
-                print(classification_report(Y, bestPermutation))
-
-    def listCommonValue(self, list1, list2):
-        if(len(list1) != len(list2)):
-            raise Exception()
-        
-        for i in range(len(list1)):
-            if(list1[i] == list2[i]):
-                return True
-        
-        return False
+        return problemValidationData
         
 
+    def validateSemiSupervised(self, embeddings, clusterAlgos, classifiersUnfit):
+        embeddingsUsed = str.join('/', [emb['name'] for emb in embeddings])
+        clusterAlgosUsed = str.join('/', [type(clusterAlgo).__name__ for clusterAlgo in clusterAlgos])
+        classifiersUsed = str.join('/', [type(classifier).__name__ for classifier in classifiersUnfit])
+        print(f'Validating using the semiSupervised validation method using embeddings {embeddingsUsed}:')
 
-    def validateSemiSupervised(self, embeddingsLoaders, clusterAlgos, classifiers):
-        print(f'Validating using the semiSupervised validation method using embeddings {embeddingsLoaders}:')
-
-        if(len(embeddingsLoaders) <=1):
+        if(len(embeddings) <=1):
             print("There must be at least two embeddings")
             raise Exception()
 
-        estimators = [clone(estimator) for estimator in estimators]
-        
         problemDicts = []
 
-        for i in range(0, len(embeddingsLoaders)):
-            if(type(embeddingsLoaders[i]) is W2VEmbeddingsLoader or type(embeddingsLoaders[i]) is TfidfEmbeddingsLoader):
-                embeddingsLoaders[0], embeddingsLoaders[i] = embeddingsLoaders[i], embeddingsLoaders[0]
+        for i in range(0, len(embeddings)):
+            if(embeddings[i]['name'] == 'w2v' or embeddings[i]['name'] == 'tfidf'):
+                embeddings[0], embeddings[i] = embeddings[i], embeddings[0]
                 break
 
-        for embeddingsLoader in embeddingsLoaders:
-            problemDicts.append(SplitEmbeddingsDataPerProblem(embeddingsLoader))
+        for embedding in embeddings:
+            problemDicts.append(embedding['problemDict'])
     
-           
+        problemValidationData ={}
         for problem , data in problemDicts[0].items():
-            print(f'Validating problem {problem} using cluster algorithms {clusterAlgos}')
+            print(f'Validating problem {problem} using cluster algorithms {clusterAlgosUsed} and estimators {classifiersUsed}')
+
+            classifiers = [clone(classifier) for classifier in classifiersUnfit]
 
             X_all_indices = data['indexes']
             Y_all_indices = data['Y']
-
-            X_train_indices, X_test_indices, Y_train, Y_test = train_test_split(X_all_indices, Y_all_indices, test_size = 0.3, random_state=42)
             
             Xn = []
             Xn_test = []
             
-            for i in range(len(embeddingsLoaders)):
+            for i in range(len(embeddings)):
                 Xn.append([])
                 Xn_test.append([])
 
@@ -126,16 +116,10 @@ class ClusteringValidationMethod:
                         i = 0
                         for problemDict in problemDicts:
                             problemData = problemDict[problem]
-                            if(index in X_train_indices):
-                                 Xn[i].append(problemData['X'][problemData['indexes'].index(index)])
-                            else:
-                                 Xn_test[i].append(problemData['X'][problemData['indexes'].index(index)])
+                            Xn[i].append(problemData['X'][problemData['indexes'].index(index)])
                             i+=1
 
-                        if(index in X_train_indices):
-                             Y.append(data['Y'][data['indexes'].index(index)])
-                        else:
-                             Y_test.append(data['Y'][data['indexes'].index(index)])
+                        Y.append(data['Y'][data['indexes'].index(index)])
 
             
             allLabels = list(set(Y))
@@ -169,41 +153,41 @@ class ClusteringValidationMethod:
                     groupedPaths[key] = [i]
                 i+=1
      
-            
-            bestScore = -1
-            best_key1 = -1
-            best_key2 = -1
-            for key1 in groupedPaths:
-                for key2 in groupedPaths:
-                    if(key1 != key2 and self.listCommonValue(key1.split("$"), key2.split("$")) == False):
-                        if(len(groupedPaths[key1]) + len(groupedPaths[key2]) > bestScore):
-                            bestScore = len(groupedPaths[key1]) + len(groupedPaths[key2])
-                            best_key1 = key1
-                            best_key2 = key2
+            bestScore = - 1
+            best_combination = []
+            groupedPathsKeys = groupedPaths.keys()
+
+            for combination in itertools.combinations(groupedPathsKeys, k):
+                if(checkCombinationAllDistinct(combination)):
+                    score = 0
+
+                    for key in combination:
+                        score+= len(groupedPaths[key])
+                    
+                    if(score > bestScore):
+                        bestScore = score
+                        best_combination = combination
 
             labels = []
-            X_result = [[], [], []]
+            X_result = []
+            for _ in range(len(embeddings)):
+                X_result.append([])
+
             Y_result = []
-            for i in groupedPaths[best_key1]:
-                labels.append(label_n[i][0])
-                X_result[0].append(Xn[0][i])
-                X_result[1].append(Xn[1][i])
-                X_result[2].append(Xn[2][i])
-                Y_result.append(Y[i])
+            for comb in best_combination:
+                for i in groupedPaths[comb]:
+                    labels.append(label_n[i][0])
+                    Y_result.append(Y[i])
 
-            for i in groupedPaths[best_key2]:
-                labels.append(label_n[i][0])
-                X_result[0].append(Xn[0][i])
-                X_result[1].append(Xn[1][i])
-                X_result[2].append(Xn[2][i])
-                Y_result.append(Y[i])
+                    for j in range(len(embeddings)):
+                        X_result[j].append(Xn[j][i])
 
+            Y_test = []
             for key, v in groupedPaths.items():
-                if(not (key == best_key1 or key == best_key2)):
+                if(key not in best_combination):
                     for i in v:
-                        Xn_test[0].append(Xn[0][i])
-                        Xn_test[1].append(Xn[1][i])
-                        Xn_test[2].append(Xn[2][i])
+                        for j in range(len(embeddings)):
+                            Xn_test[j].append(Xn[j][i])
                         Y_test.append(Y[i])
 
 
@@ -221,7 +205,7 @@ class ClusteringValidationMethod:
                     bestScore = score
                     bestPermutation = permutedLabels
 
-            print(classification_report(Y_result, bestPermutation))
+            beforeClassifiers = (Y_result.copy(), bestPermutation)
 
             disagreedSolutions_X = Xn_test
             disagreedSolutions_Y = Y_test
@@ -240,7 +224,7 @@ class ClusteringValidationMethod:
 
                 predictedSolutions = np.array(predictedSolutions).T
 
-                nextDisagreedSolutions_X=[[],[],[]]
+                nextDisagreedSolutions_X=[[] for _ in range(len(embeddings))]
                 nextDisagreedSolutions_Y = []
                 for solutionIndex in range(len(predictedSolutions)):
                     allAgree = True
@@ -263,24 +247,28 @@ class ClusteringValidationMethod:
                 disagreedSolutions_X = nextDisagreedSolutions_X
                 disagreedSolutions_Y = nextDisagreedSolutions_Y
 
-                print(classification_report(agreedSolutions_Y,  Y_result))
+                afterClassifiers = (agreedSolutions_Y,  Y_result)
 
-                    
+                problemValidationData[problem] = (beforeClassifiers, afterClassifiers)
 
-    def validateClusteringMultiView(self, embeddingsLoaders):
+        return problemValidationData   
 
-        print(f'Validating using the multiview clustering validation method using embeddings {embeddingsLoaders}:')
+    def validateClusteringMultiView(self, embeddings):
+        embeddingsUsed = str.join('/', [emb['name'] for emb in embeddings])
+        print(f'Validating using the multiview clustering validation method using embeddings {embeddingsUsed}:')
 
         problemDicts = []
 
-        for embeddingsLoader in embeddingsLoaders:
-            problemDicts.append(SplitEmbeddingsDataPerProblem(embeddingsLoader))
+        for embedding in embeddings:
+            problemDicts.append(embedding['problemDict'])
+
+        problemValidationData = {}
            
         for problem , data in problemDicts[0].items():
             print(f'Validating problem {problem}')
             Xn = []
             
-            for i in range(len(embeddingsLoaders)):
+            for i in range(len(embeddings)):
                 Xn.append([])
 
             Y = []
@@ -321,36 +309,41 @@ class ClusteringValidationMethod:
                     bestScore = score
                     bestPermutation = permutedLabels
 
-            print(classification_report(Y, bestPermutation))
+            problemValidationData[problem] = (Y, bestPermutation)
+    
+        return problemValidationData
 
 
 
         
 class EstimatorValidationMethod:
 
-    def validate(self, embeddingsLoader:EmbeddingsLoader, estimators, testSize):
-        print(f'Validating using the estimator validation method using embeddings {embeddingsLoader}:')
-        problemDict = SplitEmbeddingsDataPerProblem(embeddingsLoader)
+    def validate(self, embeddings, estimatorModel, testSize):
+        print(f"Validating using the estimator validation method using embeddings {embeddings['name']}:")
+        problemDict = embeddings['problemDict']
         
-        estimators = [clone(estimator) for estimator in estimators]
-
+        problemValidationData = {}
         for problem , data in problemDict.items():
+
+            estimator = clone(estimatorModel)
+
             X = np.array(data['X'])
             Y = np.array(data['Y'])
 
-            for estimator in estimators:
-                print(f'Validating problem {problem} using estimator {estimator}')
-                X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = testSize, random_state=42)
-                
-                estimator = clone(estimator)
+            print(f'Validating problem {problem} using estimator {type(estimator).__name__}')
+            X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = testSize, random_state=42)
+            
+            estimator = clone(estimator)
 
-                print(f"Cross validation score : {cross_val_score(estimator, X_train, Y_train)}")
+            print(f"Cross validation score : {cross_val_score(estimator, X_train, Y_train)}")
 
-                estimator.fit(X_train, Y_train)
+            estimator.fit(X_train, Y_train)
 
-                labels = estimator.predict(X_test)
+            labels = estimator.predict(X_test)
 
-                print(classification_report(Y_test, labels))
+            problemValidationData[problem] = (Y_test, labels)
+
+        return problemValidationData
 
                 
 

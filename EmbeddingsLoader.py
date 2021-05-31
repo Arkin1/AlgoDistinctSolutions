@@ -10,7 +10,7 @@ class EmbeddingsLoader(ABC):
         pass
 
     @abstractmethod
-    def GetSize(self):
+    def GetName(self):
         pass
 
 
@@ -33,8 +33,8 @@ class W2VEmbeddingsLoader(EmbeddingsLoader):
                     "tokens": tokens
                 }
             
-    def GetSize(self):
-        return 128
+    def GetName(self):
+        return 'w2v'
     
     def __GetRelativePath(self, path):
         return f'Data/Embeddings/w2v/{path}'
@@ -52,8 +52,8 @@ class SafeEmbeddingsLoader(EmbeddingsLoader):
                     "embeddings": problem["safe"]
                 }
         
-    def GetSize(self):
-        return 100
+    def GetName(self):
+        return 'safe'
 
     def __GetRelativePath(self, path):
         return f'Data/Embeddings/safe/{path}'
@@ -71,8 +71,8 @@ class TfidfEmbeddingsLoader(EmbeddingsLoader):
                     "embeddings": problem["tfidf"]
                 }
             
-    def GetSize(self):
-        return 128
+    def GetName(self):
+        return 'tfidf'
     
     def __GetRelativePath(self, path):
         return f'Data/Embeddings/tfidf/{path}'

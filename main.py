@@ -1,11 +1,5 @@
-from sklearn.cluster import KMeans, SpectralClustering, AgglomerativeClustering
-from ValidationMethods import ClusteringValidationMethod
-from ValidationMethods import EstimatorValidationMethod
 from PredictionMethods import PredictionMethods
-from EmbeddingsLoader import W2VEmbeddingsLoader, SafeEmbeddingsLoader, TfidfEmbeddingsLoader
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from xgboost.sklearn import XGBClassifier
+from ValidationPipelines import ValidationPipelines
 from AlgoLabelHelper import AlgoLabelHelper
 from OriginalDataDownloader import OriginalDataDownloader
 import argparse
@@ -35,29 +29,36 @@ if(args.transform is True):
 if(args.embeddingsTypes is not None and len(args.embeddingsTypes) > 0):
     algoLabelHelper.compute_embeddings(args.embeddingsTypes)
 
+if(args.evaluate is True):
+    validationPipelines = ValidationPipelines()
 
-clusteringValidationMethod = ClusteringValidationMethod()
-kmeans = KMeans(n_clusters = -1)
-spectralClustering = SpectralClustering(n_clusters= -1)
-'''
-clusteringValidationMethod.validateK(SafeEmbeddingsLoader(), [kmeans, spectralClustering])
-clusteringValidationMethod.validateK(W2VEmbeddingsLoader(), [kmeans, spectralClustering])
-clusteringValidationMethod.validateK(TfidfEmbeddingsLoader(), [kmeans, spectralClustering])
+    #validationPipelines.KClusteringPipeline()
+    #validationPipelines.EstimatorPipeline()
+    #validationPipelines.SemisupervisedVotingPipeline()
+    validationPipelines.SemiSupervisedMultiviewSpectralClustering()
+    '''
+    clusteringValidationMethod = ClusteringValidationMethod()
+    kmeans = KMeans(n_clusters = -1)
+    spectralClustering = SpectralClustering(n_clusters= -1)
 
-estimatorValidation = EstimatorValidationMethod()
+    clusteringValidationMethod.validateK(SafeEmbeddingsLoader(), [kmeans, spectralClustering])
+    clusteringValidationMethod.validateK(W2VEmbeddingsLoader(), [kmeans, spectralClustering])
+    clusteringValidationMethod.validateK(TfidfEmbeddingsLoader(), [kmeans, spectralClustering])
 
-estimatorValidation.validate(SafeEmbeddingsLoader(), [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)], 0.2)
-estimatorValidation.validate(W2VEmbeddingsLoader(), [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)], 0.2)
-estimatorValidation.validate(TfidfEmbeddingsLoader(), [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)], 0.2)
-'''
+    estimatorValidation = EstimatorValidationMethod()
 
-clusteringValidationMethod = ClusteringValidationMethod()
-clusteringValidationMethod.validateSemiSupervised([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(), SafeEmbeddingsLoader()], [kmeans, kmeans, kmeans], [XGBClassifier(verbosity = 0), SVC(), RandomForestClassifier()])
+    estimatorValidation.validate(SafeEmbeddingsLoader(), [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)], 0.2)
+    estimatorValidation.validate(W2VEmbeddingsLoader(), [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)], 0.2)
+    estimatorValidation.validate(TfidfEmbeddingsLoader(), [RandomForestClassifier(), SVC(), XGBClassifier(verbosity = 0)], 0.2)
 
 
-clusteringValidationMethod = ClusteringValidationMethod()
-clusteringValidationMethod.validateClusteringMultiView([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(),  SafeEmbeddingsLoader()])
+    clusteringValidationMethod = ClusteringValidationMethod()
+    clusteringValidationMethod.validateSemiSupervised([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(), SafeEmbeddingsLoader()], [kmeans, kmeans, kmeans], [XGBClassifier(verbosity = 0), SVC(), RandomForestClassifier()])
 
+
+    clusteringValidationMethod = ClusteringValidationMethod()
+    clusteringValidationMethod.validateClusteringMultiView([W2VEmbeddingsLoader(), TfidfEmbeddingsLoader(),  SafeEmbeddingsLoader()])
+    '''
 '''
 predictionMethods = PredictionMethods()
 k = 2

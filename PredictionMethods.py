@@ -112,19 +112,18 @@ class PredictionMethods:
         bestScore = -1
 
         best_combination = []
-        for _ in range(k):
-            groupedPathsKeys = groupedPaths.keys()
+        groupedPathsKeys = groupedPaths.keys()
 
-            for combination in itertools.combinations(groupedPathsKeys, k):
-                if(checkCombinationAllDistinct(combination)):
-                    score = 0
+        for combination in itertools.combinations(groupedPathsKeys, k):
+            if(checkCombinationAllDistinct(combination)):
+                score = 0
 
-                    for key in combination:
-                        score+= len(groupedPaths[key])
-                    
-                    if(score > bestScore):
-                        bestScore = score
-                        best_combination = combination
+                for key in combination:
+                    score+= len(groupedPaths[key])
+                
+                if(score > bestScore):
+                    bestScore = score
+                    best_combination = combination
 
         X_train = []
         X_train_indices =[]
