@@ -85,7 +85,7 @@ class AlgoLabelHelper():
             for problem in split:
                 tfidf_tokens.append(" ".join(problem['tokens']))
 
-        pattern = "\w+|\+|-|=|!="
+        pattern = "\w+|\+|-|=|!=|\*|\/|%|!"
         stop_w = ["(", ")", ".", "#", ";", ",", ">>", "<<", "{", "}", "[", "]", "'.'", "\"...\""]
         
         vectorizer = TfidfVectorizer(token_pattern=pattern, stop_words=stop_w)

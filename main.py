@@ -32,10 +32,10 @@ if(args.embeddingsTypes is not None and len(args.embeddingsTypes) > 0):
 if(args.evaluate is True):
     validationPipelines = ValidationPipelines()
 
-    #validationPipelines.KClusteringPipeline()
+    validationPipelines.KClusteringPipeline()
     #validationPipelines.EstimatorPipeline()
     #validationPipelines.SemisupervisedVotingPipeline()
-    validationPipelines.SemiSupervisedMultiviewSpectralClustering()
+    #validationPipelines.SemiSupervisedMultiviewSpectralClustering()
     '''
     clusteringValidationMethod = ClusteringValidationMethod()
     kmeans = KMeans(n_clusters = -1)
