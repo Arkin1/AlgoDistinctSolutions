@@ -1,23 +1,31 @@
 # AlgoDistinctSolutions
 
-The scope of this repository is to show how well do code embeddings behave in the task of determining the distinct solutions of a competitive programming problem.
+The scope of this repository is to offer a tool in which you can for a given competitive programming problem to split it in K different solutions in terms of algorthmic approach as well as implementation.
 
-To do that a manual dataset was annotated for 10 problems in which the number of distinct solutions is known.
-
-The following methods to generate code embeddings were used for the above problem:
-- Word2Vec
-- SAFE
-- Tf-idf
-
-The preprocessing of the dataset as well as the generation of Word2vec and SAFE embeddings was done through the AlgoLabel repository. This repository has a pipeline in which those can be generated.
+It uses AlgoLabel repository (https://github.com/NLCP/AlgoLabel) for it's implementation of various preprocessing steps as well as the integration of some state of the art deep learning models.
 
 ## Manual annotated dataset
-Todo
+To validate the method, a dataset which contains 10 problems from infoarena was manually annotated. The raw data as well as the embeddings generated for this problem are available here.
+    Raw Dataset(https://drive.google.com/file/d/1mSRGL57389is7r5U70b_5yZ6whTeuWz2/view?usp=sharing)
 
-## How to obtain the embeddings for a raw dataset
+    Embeddings(https://drive.google.com/file/d/11AUF2HklrWND4_eF18VpMHvYVJTCTyOv/view?usp=sharing)
 
+Besides this, there is a script available which downloads those 2 files. The script can be run through an argument available in the main.py.
 
-Tell about cppchecker, g++, download safe model, create embeddings folder for w2v(modify gitignore as well)
+## Prerequirements
+
+1. You need to download g++
+2. You need to download cppchecker
+3. In the algolabel folder you need to download the safe model using the available scripts from there
+
+## How to run it
+
+The main.py offers an argument parser which can fulfill multiple operations:
+1. Download the embeddings and the raw dataset
+2. Preprocess the dataset available in the raw dataset folder. This can be the original raw dataset or any dataset, as long as it follows the structure.
+3. Compute the embeddings(tf-idf, w2v, safe) of the preprocessed dataset.
+4. Compute the evalution based on the embeddings.
+
 
 
 
