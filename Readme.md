@@ -22,9 +22,9 @@ Besides this, there is a script available which downloads those 2 files. The scr
 
 The main.py offers an argument parser which can fulfill multiple operations:
 1. Download the embeddings and the raw dataset
-2. Preprocess the dataset available in the raw dataset folder. This can be the original raw dataset or any dataset, as long as it follows the structure.
+2. Transform the dataset into a format which can be used by AlgoLabel
 3. Compute the embeddings(tf-idf, w2v, safe) of the preprocessed dataset.
-4. Compute the evalution based on the embeddings.
+4. Compute the evalution based on the embeddings. The results from the evaluation step are saved in the Data/Validation in csv format.
 
 
 

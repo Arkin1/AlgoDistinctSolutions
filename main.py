@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser(description='Code embeddings in the context of different solutions in a competitive programming problem')
 
-parser.add_argument('--download', action='store_true', help='Download the original files (raw dataset, preprocessed dataset and embeddings)')
+parser.add_argument('--download', action='store_true', help='Download the original files (raw dataset and embeddings)')
 parser.add_argument('--transform', action='store_true', help='Transform the raw dataset in a format which can be used by AlgoLabel')
 parser.add_argument('--embeddings', dest='embeddingsTypes',action='append', choices=['w2v', 'safe', 'tfidf'], help='Computes the embeddings for transformed dataset')
 parser.add_argument('--evaluate', action='store_true', help='Evaluates how well the embeddings contribute in the distinct solutions problem')
