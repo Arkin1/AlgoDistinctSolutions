@@ -27,6 +27,9 @@ The main.py offers an argument parser which can fulfill multiple operations:
 3. Compute the embeddings(tf-idf, w2v, safe) of the preprocessed dataset.
 4. Compute the evalution based on the embeddings. The results from the evaluation step are saved in the Data/Validation in csv format.
 
+## Note
+The entire repository was tested just on WSL2 using the Ubuntu distro. 
+
 
 
 
