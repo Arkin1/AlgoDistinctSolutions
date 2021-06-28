@@ -168,6 +168,9 @@ class ClusteringValidationMethod:
                         bestScore = score
                         best_combination = combination
 
+            if(bestScore == -1):
+                raise Exception(f"Couldn't find {k} vectors, make k smaller")
+
             labels = []
             X_result = []
             for _ in range(len(embeddings)):

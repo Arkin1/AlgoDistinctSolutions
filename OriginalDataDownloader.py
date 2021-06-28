@@ -4,8 +4,8 @@ import shutil
 
 class OriginalDataDownloader:
     def __init__(self):
-        self.rawDatasetZipFileId = '1aZH5RGxJ0b3iuJ_Sw-ZOPDtprlxjy-K0'
-        self.embeddingsZipFileId = '1_oykYqbghN-PQIXhO5QQMaUW_SJeMoAB'
+        self.rawDatasetZipFileId = '1mSRGL57389is7r5U70b_5yZ6whTeuWz2'
+        self.embeddingsZipFileId = '11AUF2HklrWND4_eF18VpMHvYVJTCTyOv'
 
     def download(self):
         self.__removeDataFolder()
