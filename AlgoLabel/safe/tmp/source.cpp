@@ -1,125 +1,91 @@
 #include <bits/stdc++.h>
 #include <bits/stdc++.h>
 
-#define Dim 100007
+#define NM  2000005
+
+#define MOD int(1e9+9)
+
+///single Hash
 
 using namespace std;
 
-ifstream f("evaluare.in");
+ifstream fin ("strmatch.in");
 
-ofstream g("evaluare.out");
+ofstream fout ("strmatch.out");
 
-int Expresie();
+int n, m;
 
-int Termen();
+int p[NM], h[NM], h2[NM], p2[NM];
 
-int Factor();
+long long hs, hs2;
 
-char S[Dim];
+char s[NM], t[NM];
 
-int indexxx;
-
-
-
-int Expresie()
-
-{
-
-    int r=Termen();
-
-    while(S[indexxx]=='+'||S[indexxx]=='-')
-
-    {
-
-        indexxx++;
-
-        if(S[indexxx-1]=='+') r+=Termen();
-
-        else r-=Termen();
-
-    }
-
-    return r;
-
-}
-
-
-
-int Termen()
-
-{
-
-    int r=Factor();
-
-    while(S[indexxx]=='/'||S[indexxx]=='*')
-
-    {
-
-        indexxx++;
-
-        if(S[indexxx-1]=='/') r/=Factor();
-
-        else r*=Factor();
-
-    }
-
-    return r;
-
-}
-
-
-
-int Factor()
-
-{
-
-    int sgn=1;
-
-    while(S[indexxx]=='-') sgn=-sgn,indexxx++;
-
-
-
-    if(S[indexxx]=='(')
-
-    {
-
-        indexxx++;
-
-        int r=Expresie();
-
-        indexxx++;
-
-        return r*sgn;
-
-    }
-
-    int r=0;
-
-
-
-    while(S[indexxx]>='0'&&S[indexxx]<='9')
-
-    r=r*10+(S[indexxx]-'0'),indexxx++;
-
-
-
-    return r;
-
-}
-
-
+vector<int> rez;
 
 int main()
 
 {
 
-    freopen("evaluare.in","r",stdin); freopen("evaluare.out","w",stdout);
+    fin.getline(s, NM);
 
-        cin.getline(S,Dim);
+    fin.getline(t, NM);
 
-    g<<Expresie();
+    n = strlen(t);
 
+    m = strlen(s);
 
+    p[0] = p2[0] = 1;
+
+    for(int i=1; i<=n; i++)
+
+        p[i] = (1LL*p[i-1]*31)%MOD, p2[i] = (1LL*p2[i-1]*53)%MOD;
+
+    for(int i=0; i<n; i++)
+
+        h[i] = 1LL*(((i>0)? h[i-1]: 0) + 1LL*p[i]*(t[i]-'0'+1) %MOD)%MOD;
+
+    for(int i=0; i<n; i++)
+
+        h2[i] = 1LL*(((i>0)? h2[i-1]: 0) + 1LL*p2[i]*(t[i]-'0'+1) %MOD)%MOD;
+
+    for(int i=0; i<m; i++)
+
+        hs = (1LL*(hs + 1LL*p[i]*(s[i]-'0'+1)%MOD))%MOD;
+
+    for(int i=0; i<m; i++)
+
+        hs2 = (1LL*(hs2 + 1LL*p2[i]*(s[i]-'0'+1)%MOD))%MOD;
+
+    int nr = 0;
+
+    for(int i=m-1; i<n; i++)
+
+        if( ((1LL*hs*p[i-m+1])%MOD) == (1LL*(h[i]- ((i>=m)?h[i-m]:0)+MOD)%MOD) &&
+
+           ((1LL*hs2*p2[i-m+1])%MOD) == (1LL*(h2[i]- ((i>=m)?h2[i-m]:0)+MOD)%MOD))
+
+        {
+
+            if(nr<1000)
+
+                rez.push_back(i-m+1);
+
+            nr++;
+
+        }
+
+    fout << nr << '\n';
+
+    nr = 0;
+
+    for(auto it:rez)
+
+        if(nr > 1000)
+
+            break;
+
+        else fout << it << ' ', nr++;
 
     return 0;
 
