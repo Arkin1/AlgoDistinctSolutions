@@ -5,7 +5,8 @@ The scope of this repository is to offer a tool in which you can for a given com
 It uses AlgoLabel repository (https://github.com/NLCP/AlgoLabel) for it's implementation of various preprocessing steps as well as the integration of some state of the art deep learning models.
 
 ## Manual annotated dataset
-To validate the method, a dataset which contains 10 problems from infoarena was manually annotated. The raw data as well as the embeddings generated for this problem are available here.
+To validate the method, a dataset which contains 10 problems from infoarena was manually annotated. The raw data as well as the embeddings generated for this problem are available here:
+
     Raw Dataset(https://drive.google.com/file/d/1mSRGL57389is7r5U70b_5yZ6whTeuWz2/view?usp=sharing)
 
     Embeddings(https://drive.google.com/file/d/11AUF2HklrWND4_eF18VpMHvYVJTCTyOv/view?usp=sharing)
