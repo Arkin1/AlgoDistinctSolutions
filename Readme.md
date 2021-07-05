@@ -17,7 +17,8 @@ Besides this, there is a script available which downloads those 2 files. The scr
 
 1. You need to download g++
 2. You need to download cppchecker
-3. In the algolabel folder you need to download the safe model using the available scripts from there
+3. In the algolabel folder you need to download the safe model. Go into AlgoLabel/safe and run python3 -m downloader.py -b .
+4. You need to install the libraries from requirements.txt. 
 
 ## How to run it
 
@@ -26,6 +27,9 @@ The main.py offers an argument parser which can fulfill multiple operations:
 2. Transform the dataset into a format which can be used by AlgoLabel
 3. Compute the embeddings(tf-idf, w2v, safe) of the preprocessed dataset.
 4. Compute the evalution based on the embeddings. The results from the evaluation step are saved in the Data/Validation in csv format.
+
+## Note
+The entire repository was tested just on WSL2 using the Ubuntu distro. 
 
 
 
