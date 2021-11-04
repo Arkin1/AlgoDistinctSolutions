@@ -14,11 +14,11 @@ To validate the method, a dataset(AlgoSol-10) which contains 10 problems from in
 Besides this, there is a script available which downloads those 2 files. The script can be run through an argument available in the main.py.
 
 ## Prerequirements
-
-1. You need to download g++
-2. You need to download cppchecker
-3. In the algolabel folder you need to download the safe model. Go into AlgoLabel/safe and run python3 -m downloader.py -b .
-4. You need to install the libraries from requirements.txt. 
+1. Python 3.7.4
+2. You need to download g++
+3. You need to download cppchecker
+4. In the algolabel folder you need to download the safe model. Go into AlgoLabel/safe and run python3 -m downloader.py -b .
+5. You need to install the libraries from requirements.txt. 
 
 ## How to run it
 
