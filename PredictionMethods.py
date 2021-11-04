@@ -31,8 +31,33 @@ def checkCombinationAllDistinct(combination):
     return True
 
 class PredictionMethods:
-    def validateSemiSupervised(self, problem, embeddingsLoaders, clusterAlgos, classifiers, k):
-        print(f'Predicting using the semiSupervised validation method using embeddings {embeddingsLoaders}:')
+    def validateK(self, problem, embeddings, clusterAlgo):
+        print(f"Validating using the known k clustering validation method using embeddings {embeddings['name']}:")
+        problemDict = embeddings['problemDict']
+        
+        problemValidationData = {}
+
+        predicted_Y = []
+        for data in problemDict[problem]:
+            X = np.array(data['X'])
+            Y = np.array(data['Y'])
+
+            allLabels = list(set(Y))
+            k = len(allLabels)
+        
+            clusterAlgo.set_params(n_clusters = k)
+
+            print(f'Predicting problem {problem} using cluster algorithm {type(clusterAlgo).__name__}')
+
+            clusterAlgo.fit(X)
+            labels = clusterAlgo.labels_
+        
+        return [data['indexes'], predicted_Y]
+            
+
+
+    def predictSemiSupervised(self, problem, embeddingsLoaders, clusterAlgos, classifiers, k):
+        print(f'Predicting using the semi-supervised method using embeddings {embeddingsLoaders}:')
 
         if(len(embeddingsLoaders) <=1):
             print("There must be at least two embeddings")
@@ -53,7 +78,7 @@ class PredictionMethods:
 
         data = problemDicts[0][problem]
         
-        print(f'Validating problem {problem} using cluster algorithms {clusterAlgos}')
+        print(f'Predicting problem {problem} using cluster algorithms {clusterAlgos}')
 
         X_all_indices = data['indexes']
         
@@ -215,6 +240,52 @@ class PredictionMethods:
             solutions_indices.append(Xn_indices[index])
 
         return (solutions_indices, agreedSolutions_Y)
+
+    def validateClusteringMultiView(self, problem, embeddings):
+        embeddingsUsed = str.join('/', [emb['name'] for emb in embeddings])
+        print(f'Predicting using the multiview clustering validation method using embeddings {embeddingsUsed}:')
+
+        problemDicts = []
+
+        for embedding in embeddings:
+            problemDicts.append(embedding['problemDict'])
+        
+        prediction_Y = []
+        Xn_indices = []
+        for data in problemDicts[0].items():
+            print(f'Predicting problem {problem}')
+            Xn = []
+            
+            for i in range(len(embeddings)):
+                Xn.append([])
+
+            for index in data['indexes']:
+                indexInAllEmbeddings = True
+
+                for problemDict in problemDicts:
+                    if index not in problemDict[problem]['indexes']:
+                        indexInAllEmbeddings = False
+                        break
+
+                if(indexInAllEmbeddings):
+                    i = 0
+                    for problemDict in problemDicts:
+                        problemData = problemDict[problem]
+                        Xn[i].append(problemData['X'][problemData['indexes'].index(index)])
+                        i+=1
+                    Xn_indices.append(index)
+            
+            allLabels = list(set(Y))
+            k = len(allLabels)
+
+            multiView = MVSC(k)
+            
+            views = [np.array(Xi) for Xi in Xn]
+            is_distance = np.array([False for Xi in Xn])
+
+            prediction_Y = multiView.fit(views, is_distance).embedding_
+    
+        return [Xn_indices, prediction_Y]
 
 
                 

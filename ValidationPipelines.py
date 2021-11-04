@@ -131,7 +131,7 @@ class ValidationPipelines:
         self.__closeCsv(csv)    
 
     def SemiSupervisedMultiviewSpectralClustering(self):
-        print("Running KClusteringPipeline...")
+        print("Running MultiviewSpectralClustering Pipeline...")
 
         clusteringValidationMethod = ClusteringValidationMethod()
 

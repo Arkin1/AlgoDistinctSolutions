@@ -35,7 +35,6 @@ class ClusteringValidationMethod:
             X = np.array(data['X'])
             Y = np.array(data['Y'])
 
-            
             allLabels = list(set(Y))
             k = len(allLabels)
         
@@ -296,7 +295,10 @@ class ClusteringValidationMethod:
 
             multiView = MVSC(k)
 
-            labels = multiView.fit([np.array(Xn[0]),np.array(Xn[1])], np.array([False, False])).embedding_
+            views = [np.array(Xi) for Xi in Xn]
+            is_distance = np.array([False for Xi in Xn])
+            
+            labels = multiView.fit(views, is_distance).embedding_
 
             bestScore = -1
             for permutation in itertools.permutations(range(0, k)):
@@ -317,8 +319,6 @@ class ClusteringValidationMethod:
         return problemValidationData
 
 
-
-        
 class EstimatorValidationMethod:
 
     def validate(self, embeddings, estimatorModel, testSize):
