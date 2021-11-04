@@ -2,5 +2,6 @@ Data/*
 AlgoLabel/data/*
 AlgoLabel/datasets/*.json
 env/*
+venv/*
 .vscode/*
 *.pyc
