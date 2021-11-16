@@ -5,8 +5,7 @@ from DatasetStatistics import storeDatasetStatistics
 from OriginalDataDownloader import OriginalDataDownloader
 import argparse
 import warnings
-import os
-import shutil
+
 warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser(description='Code embeddings in the context of different solutions in a competitive programming problem')
@@ -16,6 +15,7 @@ parser.add_argument('--statistics', action = 'store_true', help='Get info about 
 parser.add_argument('--transform', action='store_true', help='Transform the raw dataset in a format which can be used by AlgoLabel')
 parser.add_argument('--embeddings', dest='embeddingsTypes',action='append', choices=['w2v', 'safe', 'tfidf'], help='Computes the embeddings for transformed dataset')
 parser.add_argument('--evaluate', action='store_true', help='Evaluates how well the embeddings contribute in the distinct solutions problem')
+parser.add_argument('--predict', action='store_true', help='Predict the distinct solutions for a specific problem in the problems folder')
 
 
 args = parser.parse_args()
@@ -39,5 +39,9 @@ if(args.evaluate is True):
 
     validationPipelines.KClusteringPipeline()
     validationPipelines.EstimatorPipeline()
-    validationPipelines.SemisupervisedVotingPipeline()
-    validationPipelines.SemiSupervisedMultiviewSpectralClustering()
+    validationPipelines.UnsupervisedVotingPipeline()
+    validationPipelines.UnsupervisedMultiviewSpectralClustering()
+
+if(args.predict is True):
+    predictionMethods = PredictionMethods()
+

@@ -1,6 +1,8 @@
 import itertools
 from EmbeddingsLoader import EmbeddingsLoader, W2VEmbeddingsLoader, TfidfEmbeddingsLoader
 import numpy as np
+from multiview import MVSC
+
 def SplitEmbeddingsDataPerProblem(embeddingsLoader:EmbeddingsLoader):
     problemDict = {}
 
@@ -31,33 +33,27 @@ def checkCombinationAllDistinct(combination):
     return True
 
 class PredictionMethods:
-    def validateK(self, problem, embeddings, clusterAlgo):
+    def predictK(self, problem, embeddings, clusterAlgo, k):
         print(f"Validating using the known k clustering validation method using embeddings {embeddings['name']}:")
         problemDict = embeddings['problemDict']
-        
-        problemValidationData = {}
 
         predicted_Y = []
         for data in problemDict[problem]:
             X = np.array(data['X'])
-            Y = np.array(data['Y'])
-
-            allLabels = list(set(Y))
-            k = len(allLabels)
         
             clusterAlgo.set_params(n_clusters = k)
 
             print(f'Predicting problem {problem} using cluster algorithm {type(clusterAlgo).__name__}')
 
             clusterAlgo.fit(X)
-            labels = clusterAlgo.labels_
+            predicted_Y = clusterAlgo.labels_
         
         return [data['indexes'], predicted_Y]
             
 
 
-    def predictSemiSupervised(self, problem, embeddingsLoaders, clusterAlgos, classifiers, k):
-        print(f'Predicting using the semi-supervised method using embeddings {embeddingsLoaders}:')
+    def predictUnsupervisedVoting(self, problem, embeddingsLoaders, clusterAlgos, classifiers, k):
+        print(f'Predicting using the unsupervised method using embeddings {embeddingsLoaders}:')
 
         if(len(embeddingsLoaders) <=1):
             print("There must be at least two embeddings")
@@ -79,8 +75,6 @@ class PredictionMethods:
         data = problemDicts[0][problem]
         
         print(f'Predicting problem {problem} using cluster algorithms {clusterAlgos}')
-
-        X_all_indices = data['indexes']
         
         Xn = []
         Xn_indices = []
@@ -241,7 +235,7 @@ class PredictionMethods:
 
         return (solutions_indices, agreedSolutions_Y)
 
-    def validateClusteringMultiView(self, problem, embeddings):
+    def predictClusteringMultiView(self, problem, embeddings, k):
         embeddingsUsed = str.join('/', [emb['name'] for emb in embeddings])
         print(f'Predicting using the multiview clustering validation method using embeddings {embeddingsUsed}:')
 
@@ -274,9 +268,6 @@ class PredictionMethods:
                         Xn[i].append(problemData['X'][problemData['indexes'].index(index)])
                         i+=1
                     Xn_indices.append(index)
-            
-            allLabels = list(set(Y))
-            k = len(allLabels)
 
             multiView = MVSC(k)
             

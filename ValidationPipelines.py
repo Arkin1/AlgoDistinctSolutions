@@ -8,8 +8,8 @@ from sklearn.svm import SVC
 from xgboost.sklearn import XGBClassifier
 from sklearn.metrics import f1_score
 import os
-import sys
 import itertools
+
 class ValidationPipelines:
 
     def KClusteringPipeline(self):
@@ -72,8 +72,8 @@ class ValidationPipelines:
 
         self.__closeCsv(csv)   
 
-    def SemisupervisedVotingPipeline(self):
-        print("Running SemisupervisedVoting pipeline...")
+    def UnsupervisedVotingPipeline(self):
+        print("Running UnsupervisedVoting pipeline...")
         clusterValidationMethod = ClusteringValidationMethod()
 
         estimators = [RandomForestClassifier(), SVC(kernel='rbf'), XGBClassifier(verbosity = 0)]
@@ -83,7 +83,7 @@ class ValidationPipelines:
                              self.__splitEmbeddingsDataPerProblem(SafeEmbeddingsLoader()), 
                              self.__splitEmbeddingsDataPerProblem(TfidfEmbeddingsLoader())]
 
-        csv = self.__createCsvValidation("SemisupervisedVoting")
+        csv = self.__createCsvValidation("UnsupervisedVoting")
 
         self.__appendToCsv(csv, ['Problem', 'Embedding', 'Clusterings', 'Estimators', 'F1_before_micro', 'F1_before_macro', 'F1_before_weight', 'Samples_before_size', 'F1_after_micro', 'F1_after_macro', 'F1_after_weight', 'Samples_after_size'])
 
@@ -106,7 +106,7 @@ class ValidationPipelines:
                 estimatorUsed = str.join('/', [type(esti).__name__ for esti in cartesianProduct[2]])
 
                 try:
-                    problems = clusterValidationMethod.validateSemiSupervised(list(cartesianProduct[0]), cartesianProduct[1], cartesianProduct[2])
+                    problems = clusterValidationMethod.validateUnsupervisedVoting(list(cartesianProduct[0]), cartesianProduct[1], cartesianProduct[2])
 
                     for name in problems.keys():
                         before, after = problems[name]
@@ -130,7 +130,7 @@ class ValidationPipelines:
                     self.__appendToCsv(csv, ["Error", embeddingsUsed, clusteringUsed, estimatorUsed])
         self.__closeCsv(csv)    
 
-    def SemiSupervisedMultiviewSpectralClustering(self):
+    def UnsupervisedMultiviewSpectralClustering(self):
         print("Running MultiviewSpectralClustering Pipeline...")
 
         clusteringValidationMethod = ClusteringValidationMethod()

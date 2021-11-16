@@ -65,11 +65,11 @@ class ClusteringValidationMethod:
         return problemValidationData
         
 
-    def validateSemiSupervised(self, embeddings, clusterAlgos, classifiersUnfit):
+    def validateUnsupervisedVoting(self, embeddings, clusterAlgos, classifiersUnfit):
         embeddingsUsed = str.join('/', [emb['name'] for emb in embeddings])
         clusterAlgosUsed = str.join('/', [type(clusterAlgo).__name__ for clusterAlgo in clusterAlgos])
         classifiersUsed = str.join('/', [type(classifier).__name__ for classifier in classifiersUnfit])
-        print(f'Validating using the semiSupervised validation method using embeddings {embeddingsUsed}:')
+        print(f'Validating using the unsupervised validation method using embeddings {embeddingsUsed}:')
 
         if(len(embeddings) <=1):
             print("There must be at least two embeddings")
@@ -91,9 +91,6 @@ class ClusteringValidationMethod:
 
             classifiers = [clone(classifier) for classifier in classifiersUnfit]
 
-            X_all_indices = data['indexes']
-            Y_all_indices = data['Y']
-            
             Xn = []
             Xn_test = []
             

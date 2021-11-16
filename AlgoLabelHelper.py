@@ -31,7 +31,7 @@ class AlgoLabelHelper():
 
         json_data = []
         tags = []
-        for root, dirs, files in os.walk(f"{pathFolder}"):
+        for root, _, files in os.walk(f"{pathFolder}"):
             if(len(files) > 0):
                 index= root.replace(f"{pathFolder}/", "").replace("/","$")
                 for file_name in files:
