@@ -4,3 +4,4 @@ AlgoLabel/datasets/*.json
 env/*
 .vscode/*
 *.pyc
+venv/*

@@ -6,8 +6,18 @@ from OriginalDataDownloader import OriginalDataDownloader
 import argparse
 import warnings
 import os
-import shutil
+
+from Embeddings.SafeEmbedder import SafeEmbedder
+
 warnings.filterwarnings("ignore")
+
+if(not os.path.exists('tmp')):
+    os.mkdir('tmp')
+
+s = SafeEmbedder('Data/PreprocessedDataset')
+
+s.compute_embeddings()
+
 
 parser = argparse.ArgumentParser(description='Code embeddings in the context of different solutions in a competitive programming problem')
 
@@ -16,7 +26,6 @@ parser.add_argument('--statistics', action = 'store_true', help='Get info about 
 parser.add_argument('--transform', action='store_true', help='Transform the raw dataset in a format which can be used by AlgoLabel')
 parser.add_argument('--embeddings', dest='embeddingsTypes',action='append', choices=['w2v', 'safe', 'tfidf'], help='Computes the embeddings for transformed dataset')
 parser.add_argument('--evaluate', action='store_true', help='Evaluates how well the embeddings contribute in the distinct solutions problem')
-
 
 args = parser.parse_args()
 
