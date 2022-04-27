@@ -24,7 +24,7 @@ def storeDatasetStatistics(datasetPath, statisticsCsvPath):
                 else:
                     print('-----------------------------')
                     problemPath = root.split(solution)[0]
-                    notCompilablePath = f"{problemPath}{solution}_{NOT_COMPILABLE_PATH}"   
+                    notCompilablePath = f"{problemPath}{solution}_{NOT_COMPILABLE}"
                     
                     if(not os.path.exists(notCompilablePath)):
                         os.mkdir(notCompilablePath)
