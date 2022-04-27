@@ -1,6 +1,5 @@
 import os
 from Constants import TMP_PATH
-import subprocess
 
 
 class ReplaceMacrosPreprocessingOp:

@@ -1,8 +1,12 @@
 import xml.etree.ElementTree as ET
 import os
 from Constants import TMP_PATH
+
 #Taken from AlgoLabel Repository
 class RemoveUnusedFunctionsPreprocessingOp:
+    def __init__(self):
+        if not os.path.exists(TMP_PATH):
+            os.mkdir(TMP_PATH, exists_ok=True)
 
     def preprocess(self, source_code_data):
         code = source_code_data['preprocessed']
@@ -50,7 +54,6 @@ class RemoveUnusedFunctionsPreprocessingOp:
                     if idx not in remove_lines and len(line) > 0]
 
         source_code_data['preprocessed'] = "\n".join(lines)
-
         os.remove(f'{TMP_PATH}/{id}.xml')
         os.remove(f'{TMP_PATH}/{id}.cpp')
 
