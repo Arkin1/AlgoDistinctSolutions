@@ -1,6 +1,5 @@
-
 from ValidationMethods import ClusteringValidationMethod, EstimatorValidationMethod
-from EmbeddingsLoader import W2VEmbeddingsLoader, SafeEmbeddingsLoader, TfidfEmbeddingsLoader, EmbeddingsLoader
+from EmbeddingsLoader import Code2VecEmbeddingsLoader, InfercodeEmbeddingsLoader, W2VEmbeddingsLoader, SafeEmbeddingsLoader, TfidfEmbeddingsLoader, EmbeddingsLoader
 import numpy as np
 from sklearn.cluster import KMeans, SpectralClustering, AgglomerativeClustering
 from sklearn.ensemble import RandomForestClassifier
@@ -8,8 +7,9 @@ from sklearn.svm import SVC
 from xgboost.sklearn import XGBClassifier
 from sklearn.metrics import f1_score
 import os
-import sys
 import itertools
+
+
 class ValidationPipelines:
 
     def KClusteringPipeline(self):
@@ -18,9 +18,11 @@ class ValidationPipelines:
         clusteringValidationMethod = ClusteringValidationMethod()
 
         clusterAlgos = [KMeans(), SpectralClustering(), AgglomerativeClustering(affinity="cosine",linkage="average")]
-        embeddingsList = [self.__splitEmbeddingsDataPerProblem(W2VEmbeddingsLoader()), 
+        embeddingsList = [self.__splitEmbeddingsDataPerProblem(Code2VecEmbeddingsLoader()), 
                              self.__splitEmbeddingsDataPerProblem(SafeEmbeddingsLoader()), 
-                             self.__splitEmbeddingsDataPerProblem(TfidfEmbeddingsLoader())]
+                             self.__splitEmbeddingsDataPerProblem(TfidfEmbeddingsLoader()),
+                             self.__splitEmbeddingsDataPerProblem(InfercodeEmbeddingsLoader()),
+                             self.__splitEmbeddingsDataPerProblem(W2VEmbeddingsLoader())]
 
         csv = self.__createCsvValidation("KCluster")
 
@@ -48,9 +50,11 @@ class ValidationPipelines:
 
         estimators = [RandomForestClassifier(), SVC(kernel='rbf'), XGBClassifier(verbosity = 0)]
 
-        embeddingsList = [self.__splitEmbeddingsDataPerProblem(W2VEmbeddingsLoader()), 
+        embeddingsList = [self.__splitEmbeddingsDataPerProblem(Code2VecEmbeddingsLoader()), 
                              self.__splitEmbeddingsDataPerProblem(SafeEmbeddingsLoader()), 
-                             self.__splitEmbeddingsDataPerProblem(TfidfEmbeddingsLoader())]
+                             self.__splitEmbeddingsDataPerProblem(TfidfEmbeddingsLoader()),
+                             self.__splitEmbeddingsDataPerProblem(InfercodeEmbeddingsLoader()),
+                             self.__splitEmbeddingsDataPerProblem(W2VEmbeddingsLoader())]
 
         csv = self.__createCsvValidation("Estimator")
 
@@ -79,9 +83,11 @@ class ValidationPipelines:
         estimators = [RandomForestClassifier(), SVC(kernel='rbf'), XGBClassifier(verbosity = 0)]
         clusteringAlgos = [KMeans(), SpectralClustering(), AgglomerativeClustering(affinity="cosine",linkage="average")]
 
-        embeddingsList = [self.__splitEmbeddingsDataPerProblem(W2VEmbeddingsLoader()), 
+        embeddingsList = [self.__splitEmbeddingsDataPerProblem(Code2VecEmbeddingsLoader()), 
                              self.__splitEmbeddingsDataPerProblem(SafeEmbeddingsLoader()), 
-                             self.__splitEmbeddingsDataPerProblem(TfidfEmbeddingsLoader())]
+                             self.__splitEmbeddingsDataPerProblem(TfidfEmbeddingsLoader()),
+                             self.__splitEmbeddingsDataPerProblem(InfercodeEmbeddingsLoader()),
+                             self.__splitEmbeddingsDataPerProblem(W2VEmbeddingsLoader())]
 
         csv = self.__createCsvValidation("SemisupervisedVoting")
 
@@ -135,9 +141,11 @@ class ValidationPipelines:
 
         clusteringValidationMethod = ClusteringValidationMethod()
 
-        embeddingsList = [self.__splitEmbeddingsDataPerProblem(W2VEmbeddingsLoader()), 
+        embeddingsList = [self.__splitEmbeddingsDataPerProblem(Code2VecEmbeddingsLoader()), 
                              self.__splitEmbeddingsDataPerProblem(SafeEmbeddingsLoader()), 
-                             self.__splitEmbeddingsDataPerProblem(TfidfEmbeddingsLoader())]
+                             self.__splitEmbeddingsDataPerProblem(TfidfEmbeddingsLoader()),
+                             self.__splitEmbeddingsDataPerProblem(InfercodeEmbeddingsLoader()),
+                             self.__splitEmbeddingsDataPerProblem(W2VEmbeddingsLoader())]
 
         csv = self.__createCsvValidation("MultiViewSpectralClustering")
 
@@ -168,7 +176,7 @@ class ValidationPipelines:
             os.mkdir('Data/Validation')
 
         csv = open(f'Data/Validation/{name}.csv', "w")
-        
+
         return csv
 
     def __appendToCsv(self, csv, row):
@@ -200,7 +208,3 @@ class ValidationPipelines:
         embeddings['problemDict'] = problemDict
 
         return embeddings
-
-                    
-
-
