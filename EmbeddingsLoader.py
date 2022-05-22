@@ -7,22 +7,22 @@ import pickle
 class EmbeddingsLoader(ABC):
 
     @abstractmethod
-    def GetEmbeddings(self):
+    def get_embeddings(self):
         pass
 
     @abstractmethod
-    def GetName(self):
+    def get_name(self):
         pass
 
 
 class W2VEmbeddingsLoader(EmbeddingsLoader):
 
-    def GetEmbeddings(self):
-        model = Word2Vec.load(self.__GetRelativePath("w2v_128_dict.emb"))
+    def get_embeddings(self):
+        model = Word2Vec.load(self._get_relative_path("w2v_128_dict.emb"))
         matrix = np.array(model.wv.vectors)
         vocab = model.wv.vocab
 
-        problems = json.load(open(self.__GetRelativePath("w2vEmbeddings.json"), "r"))
+        problems = json.load(open(self._get_relative_path("w2vEmbeddings.json"), "r"))
 
         for problem in problems:
             tokens = problem['tokens']
@@ -34,17 +34,17 @@ class W2VEmbeddingsLoader(EmbeddingsLoader):
                     "tokens": tokens
                 }
             
-    def GetName(self):
+    def get_name(self):
         return 'w2v'
     
-    def __GetRelativePath(self, path):
+    def _get_relative_path(self, path):
         return f'Data/Embeddings/w2v/{path}'
 
 
 class SafeEmbeddingsLoader(EmbeddingsLoader):
 
-    def GetEmbeddings(self):
-        problems = json.load(open(self.__GetRelativePath("safeEmbeddings.json"), "r"))
+    def get_embeddings(self):
+        problems = json.load(open(self._get_relative_path("safeEmbeddings.json"), "r"))
 
         for problem in problems:
             yield {
@@ -53,17 +53,17 @@ class SafeEmbeddingsLoader(EmbeddingsLoader):
                     "embeddings": problem["embeddings"]
                 }
         
-    def GetName(self):
+    def get_name(self):
         return 'safe'
 
-    def __GetRelativePath(self, path):
+    def _get_relative_path(self, path):
         return f'Data/Embeddings/safe/{path}'
 
 
 class Code2VecEmbeddingsLoader(EmbeddingsLoader):
     
-    def GetEmbeddings(self):
-        problems = json.load(open(self.__GetRelativePath("c2vEmbeddings.json"), "r"))
+    def get_embeddings(self):
+        problems = json.load(open(self._get_relative_path("c2vEmbeddings.json"), "r"))
 
         for problem in problems:
             yield {
@@ -72,16 +72,16 @@ class Code2VecEmbeddingsLoader(EmbeddingsLoader):
                     "embeddings": problem["embeddings"]
                 }
         
-    def GetName(self):
+    def get_name(self):
         return 'c2v'
 
-    def __GetRelativePath(self, path):
+    def _get_relative_path(self, path):
         return f'Data/Embeddings/c2v/{path}'    
 
 class InfercodeEmbeddingsLoader(EmbeddingsLoader):
     
-    def GetEmbeddings(self):
-        problems = json.load(open(self.__GetRelativePath("infercodeEmbeddings.json"), "r"))
+    def get_embeddings(self):
+        problems = json.load(open(self._get_relative_path("infercodeEmbeddings.json"), "r"))
 
         for problem in problems:
             yield {
@@ -90,16 +90,16 @@ class InfercodeEmbeddingsLoader(EmbeddingsLoader):
                 "embeddings": problem["embeddings"]
                 }
 
-    def GetName(self):
+    def get_name(self):
         return 'infercode'
     
-    def __GetRelativePath(self, path):
+    def _get_relative_path(self, path):
         return f'Data/Embeddings/infercode/{path}'
 
 class TfidfEmbeddingsLoader(EmbeddingsLoader):
     
-    def GetEmbeddings(self):
-        problems = pickle.load(open(self.__GetRelativePath("tfidfEmbeddings.pkl"), "rb"))
+    def get_embeddings(self):
+        problems = pickle.load(open(self._get_relative_path("tfidfEmbeddings.pkl"), "rb"))
 
         for problem in problems:
             yield {
@@ -108,8 +108,8 @@ class TfidfEmbeddingsLoader(EmbeddingsLoader):
                     "embeddings": problem["tfidf"].toarray().tolist()
                 }
             
-    def GetName(self):
+    def get_name(self):
         return 'tfidf'
     
-    def __GetRelativePath(self, path):
+    def _get_relative_path(self, path):
         return f'Data/Embeddings/tfidf/{path}'

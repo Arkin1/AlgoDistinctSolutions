@@ -6,45 +6,45 @@ from subprocess import run
 
 class Preprocesser:
     def __init__(self, raw_dataset_path, preprocess_dataset_path, compiler):
-        self.raw_dataset_path = raw_dataset_path
-        self.preprocess_dataset_path = preprocess_dataset_path
-        self.compiler = compiler
+        self._raw_dataset_path = raw_dataset_path
+        self._preprocess_dataset_path = preprocess_dataset_path
+        self._compiler = compiler
 
-        self.tokens_path = f"{os.getcwd()}/AlgoLabel/data/tmp/solution.tokens"
-        self.solution_path = f"{os.getcwd()}/AlgoLabel/data/tmp/solution.cpp"
+        self._tokens_path = f"{os.getcwd()}/AlgoLabel/data/tmp/solution.tokens"
+        self._solution_path = f"{os.getcwd()}/AlgoLabel/data/tmp/solution.cpp"
 
-        if(not os.path.exists(self.preprocess_dataset_path)):
-            os.mkdir(self.preprocess_dataset_path)
+        if(not os.path.exists(self._preprocess_dataset_path)):
+            os.mkdir(self._preprocess_dataset_path)
     
     def preprocess(self, preprocessing_operations, max_workers = 1):
         self.preprocessing_operations = preprocessing_operations
         cpp_files_preprocess = []
-        for root, _, files in os.walk(self.raw_dataset_path):
+        for root, _, files in os.walk(self._raw_dataset_path):
             for f in files:
                 if(f.endswith(".cpp")):
-                    cpp_files_preprocess.append(f'{root}/{f}'.replace(self.raw_dataset_path, "")[1:])
+                    cpp_files_preprocess.append(f'{root}/{f}'.replace(self._raw_dataset_path, "")[1:])
 
-        chunks_result = process_map(self.preprocess2, cpp_files_preprocess, max_workers = max_workers, chunksize = 1)
+        chunks_result = process_map(self._preprocess_helper, cpp_files_preprocess, max_workers = max_workers, chunksize = 1)
 
         preprocessed_source_codes = [result[0] for result in chunks_result]
 
         for solution in preprocessed_source_codes:
             # Code taken from AlgoLabel repository
-            solution['tokens'] = self.__splitSourceCodeTokens(solution['preprocessed'])
+            solution['tokens'] = self._splitSourceCodeTokens(solution['preprocessed'])
         
-        f_result = open(f"{self.preprocess_dataset_path}/raw_dataset_prepared.json", 'w', encoding='utf8')
+        f_result = open(f"{self._preprocess_dataset_path}/raw_dataset_prepared.json", 'w', encoding='utf8')
         json.dump(preprocessed_source_codes, f_result, indent=4)
         f_result.close()
 
 
-    def preprocess2(self, file_name):
+    def _preprocess_helper(self, file_name):
         preprocessed_source_codes = []
 
         problem_name, algorithmic_solution, source_code_id = file_name.split('/')
 
         source_code_id = source_code_id.replace('.cpp', '')
 
-        f = open(f'{self.raw_dataset_path}/{file_name}', 'r', encoding='utf8')
+        f = open(f'{self._raw_dataset_path}/{file_name}', 'r', encoding='utf8')
         source_code = f.read()
         f.close()
 
@@ -61,19 +61,19 @@ class Preprocesser:
         preprocessed_source_codes.append(source_code_preprocessed_data)
         return preprocessed_source_codes
 
-    def __splitSourceCodeTokens(self, code):
-        f = open(self.solution_path, 'w')
+    def _splitSourceCodeTokens(self, code):
+        f = open(self._solution_path, 'w')
         f.write(code)
         f.close()
 
-        tokenizer = self.__ensureTokenizerExists()
-        tokenizer_cmd = "{} {}".format(tokenizer, self.solution_path)
-        with open(self.tokens_path, "w") as f:
+        tokenizer = self._ensure_tokenizer_exists()
+        tokenizer_cmd = "{} {}".format(tokenizer, self._solution_path)
+        with open(self._tokens_path, "w") as f:
             rc = run(tokenizer_cmd, shell=True, stdout=f, stderr=f)
             if not rc:
                 raise Exception("Error while tokenizing source code")
 
-        with open(self.tokens_path, "r") as f:
+        with open(self._tokens_path, "r") as f:
             tokens = []
             for line in f:
                 if "//" not in line and "/*" not in line:
@@ -84,7 +84,7 @@ class Preprocesser:
         return tokens
 
 
-    def __ensureTokenizerExists(self):
+    def _ensure_tokenizer_exists(self):
         tokenizer_dir  = f"{os.getcwd()}/AlgoLabel/tokenizer/src"
 
         if platform == "win32":
@@ -97,7 +97,7 @@ class Preprocesser:
         if not os.path.exists(tokenizer_path):
             current_path = os.getcwd()
             os.chdir(tokenizer_dir)
-            run("{} *.cpp *.h -o {}".format(self.compiler, tokenizer_path))
+            run("{} *.cpp *.h -o {}".format(self._compiler, tokenizer_path))
             os.chdir(current_path)
 
         return tokenizer_path

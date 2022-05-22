@@ -1,7 +1,7 @@
 # from PredictionMethods import PredictionMethods
 from ValidationPipelines import ValidationPipelines
 from AlgoLabelHelper import AlgoLabelHelper
-from DatasetStatistics import storeDatasetStatistics
+from StatisticsHelper import StatisticsHelper
 from OriginalDataDownloader import OriginalDataDownloader
 import argparse
 import warnings
@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 parser = argparse.ArgumentParser(description='Code embeddings in the context of different solutions in a competitive programming problem')
 
 parser.add_argument('--download', action='store_true', help='Download the original files (raw dataset and embeddings)')
-parser.add_argument('--statistics', action = 'store_true', help='Get info about number of source codes per solution as well as compilable source codes')
+parser.add_argument('--statistics', dest='statisticsType', action = 'append', choices=['dataset', 'incremental_tfidf'], help='Get statistics based on the choice (dataset, source code, results)')
 parser.add_argument('--transform', action='store_true', help='Transform the raw dataset in a format which can be used by AlgoLabel')
 parser.add_argument('--prepare' , action='store_true', help='Prepare the dataset for the training/validation pipeline')
 parser.add_argument('--embeddings', dest='embeddingsTypes',action='append', choices=['w2v', 'c2v' , 'safe', 'tfidf', 'infercode', 'incremental_tfidf'], help='Computes the embeddings for transformed dataset')
@@ -25,12 +25,13 @@ if(not os.path.exists('tmp')):
 args = parser.parse_args()
 
 algoLabelHelper = AlgoLabelHelper()
+statisticsHelper = StatisticsHelper()
 
 if(args.download is True):
     OriginalDataDownloader().download()
 
-if(args.statistics is True):
-    storeDatasetStatistics("Data/RawDataset", "Data/statistics.csv")
+if(args.statisticsType is not None and len(args.statisticsType) > 0):
+    statisticsHelper.handleStatistics(args.statisticsType)
 
 if(args.transform is True):
     algoLabelHelper.transformFolderStructureValidFormat("Data/RawDataset")
@@ -44,7 +45,7 @@ if(args.embeddingsTypes is not None and len(args.embeddingsTypes) > 0):
 if(args.evaluate is True):
     validationPipelines = ValidationPipelines()
 
-    validationPipelines.KClusteringPipeline()
-    validationPipelines.EstimatorPipeline()
-    validationPipelines.SemisupervisedVotingPipeline()
-    validationPipelines.SemiSupervisedMultiviewSpectralClustering()
+    validationPipelines.k_clustering_pipeline()
+    validationPipelines.estimator_pipeline()
+    validationPipelines.unsupervised_voting_pipeline()
+    validationPipelines.semi_supervised_multiview_spectral_clustering()

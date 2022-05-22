@@ -1,5 +1,7 @@
 import sys
+
 sys.path.insert(0,"code2vec")
+
 import os
 import shutil
 import pandas
@@ -27,7 +29,7 @@ class Code2VecEmbedder():
         self.model = c2v.load_model_dynamically(self.config)
         self.astminer = "Algolabel/astminer/lib-0.5.jar"
 
-    def __SplitTokens(self, str):
+    def _split_tokens(self, str):
         matches = re.findall(r'[a-zA-Z]+', str)
 
         tokens = []
@@ -43,7 +45,7 @@ class Code2VecEmbedder():
 
         return  result
 
-    def ExtractCode2VecFormatProject(self, preprocessFolder,  maxL, maxW, maxContexts, maxTokens, maxPaths):
+    def _extract_c2v_format_project(self, preprocessFolder,  maxL, maxW, maxContexts, maxTokens, maxPaths):
         self.currentFolder = os.getcwd()
         tmpFolder = os.getcwd() + '/' + 'tmp'
 
@@ -61,9 +63,7 @@ class Code2VecEmbedder():
                         shutil.copy(f"{root}/{f}", f"{tmpFolder}/{f}")
 
                         os.chdir("astminer")
-
                         os.system(f"./cli.sh code2vec --lang cpp --project {tmpFolder} --output {tmpFolder} --maxL {maxL} --maxW {maxW} --maxContexts {maxContexts} --maxTokens {maxTokens} --maxPaths {maxPaths}  --split-tokens --granularity method")
-                        
                         os.chdir("..")
 
                         tokens = pandas.read_csv(f'{tmpFolder}/cpp/tokens.csv')
@@ -92,7 +92,7 @@ class Code2VecEmbedder():
                                         func_name+=line_splitted[i]
                                         i+=1
                                 
-                                dataset_entry+= f"{self.__SplitTokens(func_name).lower()} "
+                                dataset_entry+= f"{self._split_tokens(func_name).lower()} "
 
                                 for path_context in line_splitted[i:]:
                                     token1_id, path_id, token2_id = path_context.split(",")
@@ -109,8 +109,8 @@ class Code2VecEmbedder():
                                 functions.append(dataset_entry)
                         yield  (f, functions)
 
-    def GetEmbeddingsFromFiles(self, folder):
-        files = self.ExtractCode2VecFormatProject(folder, 10, 10, self.config.MAX_CONTEXTS, 100000, 100000)
+    def get_embeddings_from_files(self, folder):
+        files = self._extract_c2v_format_project(folder, 10, 10, self.config.MAX_CONTEXTS, 100000, 100000)
         
         fileEmbeddings = []
         
@@ -146,12 +146,12 @@ class Code2VecEmbedder():
 class InferCodeEmbedder():
     def __init__(self) :
         logging.basicConfig(level=logging.INFO)
-        self.infercode = InferCodeClient(language='cpp')
-        self.infercode.init_from_config()
+        self._infercode = InferCodeClient(language='cpp')
+        self._infercode.init_from_config()
 
-    def GetEmbeddingsFromDataset(self, dataset):
+    def get_embeddings_from_dataset(self, dataset):
         embeddings = []
-        problematicFiles = []
+        problematic_files = []
 
         for problem in dataset:
             index = problem['id']
@@ -159,7 +159,7 @@ class InferCodeEmbedder():
             code = problem['preprocessed']
             
             try:
-                file_embeddings = self.infercode.encode([code])
+                file_embeddings = self._infercode.encode([code])
         
                 embeddings.append({
                             "index": index,
@@ -172,23 +172,23 @@ class InferCodeEmbedder():
                             "label": label,
                             "embeddings": [[]]
                         })
-                problematicFiles.append(f"{index}.cpp")
+                problematic_files.append(f"{index}.cpp")
             
         return embeddings
 
 
 class SafeEmbedder:
     def __init__(self, dataset):
-        self.dataset = dataset
-        self.safe = SAFE(model_path='safe/data/safe.pb', instr_conv='safe/data/i2v/word2id.json')
+        self._dataset = dataset
+        self._safe = SAFE(model_path='safe/data/safe.pb', instr_conv='safe/data/i2v/word2id.json')
         os.makedirs(TMP_PATH, exist_ok=True)
         sys.path.insert(0, 'AlgoLabel')
 
-    def compute_embeddings(self, max_workers = 1):
+    def compute_embeddings(self):
         safe_embeddings = []
 
-        for entry in self.dataset:
-            res = self.compute_embeddings2(entry)
+        for entry in self._dataset:
+            res = self._compute_embeddings_helper(entry)
             safe_embeddings.append({
                 "index": entry['id'],
                 "label": entry['algorithmic_solution'],
@@ -198,7 +198,7 @@ class SafeEmbedder:
         return safe_embeddings
 
     
-    def compute_embeddings2(self, entry):
+    def _compute_embeddings_helper(self, entry):
         
         f = open(f'{TMP_PATH}/tmp_safe.cpp', 'w', encoding='utf8')
         f.write(entry['raw'])
@@ -207,7 +207,7 @@ class SafeEmbedder:
         _ = os.system(f'g++ {TMP_PATH}/tmp_safe.cpp -O3 -o {TMP_PATH}/object_code.o')
 
         try:
-            embeddings = self.safe.embedd_functions(str(f'{TMP_PATH}/object_code.o'))
+            embeddings = self._safe.embedd_functions(str(f'{TMP_PATH}/object_code.o'))
             embeddings = [x.tolist()[0] for x in embeddings if x is not None]
 
             return embeddings

@@ -4,8 +4,8 @@ import shutil
 
 class OriginalDataDownloader:
     def __init__(self):
-        self.rawDatasetZipFileId = '1mSRGL57389is7r5U70b_5yZ6whTeuWz2'
-        self.embeddingsZipFileId = '11AUF2HklrWND4_eF18VpMHvYVJTCTyOv'
+        self._rawDatasetZipFileId = '1mSRGL57389is7r5U70b_5yZ6whTeuWz2'
+        self._embeddingsZipFileId = '11AUF2HklrWND4_eF18VpMHvYVJTCTyOv'
 
     def download(self):
         self.__removeDataFolder()
@@ -16,7 +16,7 @@ class OriginalDataDownloader:
     def __downloadRawDataset(self):
         zipPath = 'Data/RawDataset.zip'
 
-        gdd.download_file_from_google_drive(file_id=self.rawDatasetZipFileId,
+        gdd.download_file_from_google_drive(file_id=self._rawDatasetZipFileId,
                                     dest_path=zipPath,
                                     showsize=True,
                                     unzip=True)
@@ -26,7 +26,7 @@ class OriginalDataDownloader:
     def __downloadEmbeddings(self):
         zipPath = 'Data/Embeddings.zip'
 
-        gdd.download_file_from_google_drive(file_id=self.embeddingsZipFileId,
+        gdd.download_file_from_google_drive(file_id=self._embeddingsZipFileId,
                                     dest_path=zipPath,
                                     showsize=True,
                                     unzip=True)

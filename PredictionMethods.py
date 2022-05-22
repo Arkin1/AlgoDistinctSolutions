@@ -1,10 +1,12 @@
 import itertools
 from EmbeddingsLoader import EmbeddingsLoader, W2VEmbeddingsLoader, TfidfEmbeddingsLoader
 import numpy as np
-def SplitEmbeddingsDataPerProblem(embeddingsLoader:EmbeddingsLoader):
+
+
+def split_problem_embeddings(embeddingsLoader:EmbeddingsLoader):
     problemDict = {}
 
-    for solution in embeddingsLoader.GetEmbeddings():
+    for solution in embeddingsLoader.get_embeddings():
         functionEmbeddings = np.array(solution["embeddings"])
         solutionEmbedding = np.mean(functionEmbeddings, 0)
 
@@ -17,8 +19,7 @@ def SplitEmbeddingsDataPerProblem(embeddingsLoader:EmbeddingsLoader):
     
     return problemDict
 
-def checkCombinationAllDistinct(combination):
-
+def check_distinct_combination(combination):
     for x in combination:
         for y in combination:
             if x != y:
@@ -31,93 +32,84 @@ def checkCombinationAllDistinct(combination):
     return True
 
 class PredictionMethods:
-    def validateK(self, problem, embeddings, clusterAlgo):
+    def _validateK(self, problem, embeddings, cluster_algo):
         print(f"Validating using the known k clustering validation method using embeddings {embeddings['name']}:")
-        problemDict = embeddings['problemDict']
+        problem_dict = embeddings['problemDict']
         
-        problemValidationData = {}
-
         predicted_Y = []
-        for data in problemDict[problem]:
+        for data in problem_dict[problem]:
             X = np.array(data['X'])
             Y = np.array(data['Y'])
 
-            allLabels = list(set(Y))
-            k = len(allLabels)
+            all_labels = list(set(Y))
+            k = len(all_labels)
         
-            clusterAlgo.set_params(n_clusters = k)
+            cluster_algo.set_params(n_clusters = k)
 
-            print(f'Predicting problem {problem} using cluster algorithm {type(clusterAlgo).__name__}')
+            print(f'Predicting problem {problem} using cluster algorithm {type(cluster_algo).__name__}')
 
-            clusterAlgo.fit(X)
-            labels = clusterAlgo.labels_
+            cluster_algo.fit(X)
         
         return [data['indexes'], predicted_Y]
-            
 
+    def _predict_unsupervised(self, problem, embeddings_loaders, cluster_algos, classifiers, k):
+        print(f'Predicting using the semi-supervised method using embeddings {embeddings_loaders}:')
 
-    def predictSemiSupervised(self, problem, embeddingsLoaders, clusterAlgos, classifiers, k):
-        print(f'Predicting using the semi-supervised method using embeddings {embeddingsLoaders}:')
-
-        if(len(embeddingsLoaders) <=1):
+        if(len(embeddings_loaders) <=1):
             print("There must be at least two embeddings")
             raise Exception()
         
-        if(len(embeddingsLoaders)!= len(clusterAlgos)):
+        if(len(embeddings_loaders)!= len(cluster_algos)):
             print("Embeddings and clusters list must have the same size")
 
-        problemDicts = []
+        problem_dicts = []
 
-        for i in range(0, len(embeddingsLoaders)):
-            if(type(embeddingsLoaders[i]) is W2VEmbeddingsLoader or type(embeddingsLoaders[i]) is TfidfEmbeddingsLoader):
-                embeddingsLoaders[0], embeddingsLoaders[i] = embeddingsLoaders[i], embeddingsLoaders[0]
+        for i in range(0, len(embeddings_loaders)):
+            if(type(embeddings_loaders[i]) is W2VEmbeddingsLoader or type(embeddings_loaders[i]) is TfidfEmbeddingsLoader):
+                embeddings_loaders[0], embeddings_loaders[i] = embeddings_loaders[i], embeddings_loaders[0]
                 break
 
-        for embeddingsLoader in embeddingsLoaders:
-            problemDicts.append(SplitEmbeddingsDataPerProblem(embeddingsLoader))
+        for embeddings_loader in embeddings_loaders:
+            problem_dicts.append(split_problem_embeddings(embeddings_loader))
 
-        data = problemDicts[0][problem]
+        data = problem_dicts[0][problem]
         
-        print(f'Predicting problem {problem} using cluster algorithms {clusterAlgos}')
-
-        X_all_indices = data['indexes']
+        print(f'Predicting problem {problem} using cluster algorithms {cluster_algos}')
         
         Xn = []
         Xn_indices = []
         
-        for i in range(len(embeddingsLoaders)):
+        for i in range(len(embeddings_loaders)):
             Xn.append([])
 
         for index in data['indexes']:
-                indexInAllEmbeddings = True
+                index_in_all_embeddings = True
 
-                for problemDict in problemDicts:
-                    if index not in problemDict[problem]['indexes']:
-                        indexInAllEmbeddings = False
+                for problem_dict in problem_dicts:
+                    if index not in problem_dict[problem]['indexes']:
+                        index_in_all_embeddings = False
                         break
 
-                if(indexInAllEmbeddings):
+                if(index_in_all_embeddings):
                     i = 0
-                    for problemDict in problemDicts:
-                        problemData = problemDict[problem]
-                        Xn[i].append(problemData['X'][problemData['indexes'].index(index)])
+                    for problem_dict in problem_dicts:
+                        problem_data = problem_dict[problem]
+                        Xn[i].append(problem_data['X'][problem_data['indexes'].index(index)])
                         i+=1
                     Xn_indices.append(index)
-
-    
             
-        for clusterAlgo in clusterAlgos:
-            clusterAlgo.set_params(n_clusters = k)
+        for cluster_algo in cluster_algos:
+            cluster_algo.set_params(n_clusters = k)
 
         label_n = []
         index = 0
         for X in Xn:
-            label_n.append(clusterAlgos[index].fit(X).labels_)
+            label_n.append(cluster_algos[index].fit(X).labels_)
             index+=1
 
         label_n = np.array(label_n).T
 
-        groupedPaths = {}
+        grouped_paths = {}
         
         i = 0
         for path in label_n:
@@ -127,132 +119,122 @@ class PredictionMethods:
                 key+=str(x) + '$'
             key = key[:-1]
 
-            if(key in groupedPaths):
-                groupedPaths[key].append(i)
+            if(key in grouped_paths):
+                grouped_paths[key].append(i)
             else:
-                groupedPaths[key] = [i]
+                grouped_paths[key] = [i]
             i+=1
-    
         
-        bestScore = -1
-
+        best_score = -1
         best_combination = []
-        groupedPathsKeys = groupedPaths.keys()
+        grouped_paths_keys = grouped_paths.keys()
 
-        for combination in itertools.combinations(groupedPathsKeys, k):
-            if(checkCombinationAllDistinct(combination)):
+        for combination in itertools.combinations(grouped_paths_keys, k):
+            if(check_distinct_combination(combination)):
                 score = 0
 
                 for key in combination:
-                    score+= len(groupedPaths[key])
+                    score+= len(grouped_paths[key])
                 
-                if(score > bestScore):
-                    bestScore = score
+                if(score > best_score):
+                    best_score = score
                     best_combination = combination
 
         X_train = []
-        X_train_indices =[]
-        for _ in range(len(embeddingsLoaders)):
-            X_train.append([])
-        
+        X_train_indices =[[] * len(embeddings_loaders)]
+
         labels = []
         for c in best_combination:
-            for i in groupedPaths[c]:
-                for emb in range(len(embeddingsLoaders)):
+            for i in grouped_paths[c]:
+                for emb in range(len(embeddings_loaders)):
                     X_train[emb].append(Xn[emb][i])
                 X_train_indices.append(i)
                 labels.append(c.split("$")[0])
 
-        X_test = []
+        X_test = [[] * len(embeddings_loaders)]
         X_test_indices = []
-        for _ in range(len(embeddingsLoaders)):
-            X_test.append([])
-        for key, v in groupedPaths.items():
+
+        for key, v in grouped_paths.items():
             if(key not in best_combination):
                 for i in v:
-                    for emb in range(len(embeddingsLoaders)):
+                    for emb in range(len(embeddings_loaders)):
                          X_test[emb].append(Xn[emb][i])
                     X_test_indices.append(i)
 
-        disagreedSolutions_X = X_test
-        disagreedSolution_indices = X_test_indices
-        agreedSolutions_X = X_train
-        agreedSolutions_indices = X_train_indices
-        agreedSolutions_Y = labels
+        disagreed_solutions_X = X_test
+        disagreed_solution_indices = X_test_indices
+        agreed_solutions_X = X_train
+        agreed_solutions_indices = X_train_indices
+        agreed_solutions_Y = labels
 
-        lastIterationSize = 0
-        while(len(disagreedSolutions_X[0]) > 0 and len(agreedSolutions_Y) - lastIterationSize > 20):
-            lastIterationSize = len(agreedSolutions_Y)
+        last_iteration_size = 0
+        while(len(disagreed_solutions_X[0]) > 0 and len(agreed_solutions_Y) - last_iteration_size > 20):
+            last_iteration_size = len(agreed_solutions_Y)
 
-            predictedSolutions =[]
+            predicted_solutions =[]
             for i in range(len(classifiers)):
-                classifiers[i].fit(np.array(agreedSolutions_X[i]), np.array(agreedSolutions_Y))
-                predictedSolutions.append(classifiers[i].predict(np.array(disagreedSolutions_X[i])))
+                classifiers[i].fit(np.array(agreed_solutions_X[i]), np.array(agreed_solutions_Y))
+                predicted_solutions.append(classifiers[i].predict(np.array(disagreed_solutions_X[i])))
 
-            predictedSolutions = np.array(predictedSolutions).T
+            predicted_solutions = np.array(predicted_solutions).T
 
-            nextDisagreedSolutions_X=[]
-            nextDisagreedSolutions_indices=[]
-            for _ in range(len(embeddingsLoaders)):
-                 nextDisagreedSolutions_X.append([])
-            nextDisagreedSolutions_Y = []
+            next_disagreed_solutions_X=[]
+            next_disagreed_solutions_indices=[[] * len(embeddings_loaders)]
 
-            for solutionIndex in range(len(predictedSolutions)):
-                allAgree = True
+            for solutionIndex in range(len(predicted_solutions)):
+                all_agree = True
 
                 for i in range(1, len(classifiers)):
-                    if(not np.char.equal(predictedSolutions[solutionIndex][i-1], predictedSolutions[solutionIndex][i])):
-                        allAgree = False
+                    if(not np.char.equal(predicted_solutions[solutionIndex][i-1], predicted_solutions[solutionIndex][i])):
+                        all_agree = False
                         break
 
-                if(allAgree== True):
+                if(all_agree== True):
                     for i in range(len(classifiers)):
-                        agreedSolutions_X[i].append(disagreedSolutions_X[i][solutionIndex])
-                    agreedSolutions_indices.append(disagreedSolution_indices[solutionIndex])
-                    agreedSolutions_Y.append(str(predictedSolutions[solutionIndex][0]))
+                        agreed_solutions_X[i].append(disagreed_solutions_X[i][solutionIndex])
+                    agreed_solutions_indices.append(disagreed_solution_indices[solutionIndex])
+                    agreed_solutions_Y.append(str(predicted_solutions[solutionIndex][0]))
                 else:
                     for i in range(len(classifiers)):
-                        nextDisagreedSolutions_X[i].append(disagreedSolutions_X[i][solutionIndex])
-                    nextDisagreedSolutions_indices.append(disagreedSolution_indices[solutionIndex])
+                        next_disagreed_solutions_X[i].append(disagreed_solutions_X[i][solutionIndex])
+                    next_disagreed_solutions_indices.append(disagreed_solution_indices[solutionIndex])
 
-            disagreedSolutions_X = nextDisagreedSolutions_X
-            disagreedSolution_indices = nextDisagreedSolutions_indices
+            disagreed_solutions_X = next_disagreed_solutions_X
+            disagreed_solution_indices = next_disagreed_solutions_indices
 
-
-        if(len(disagreedSolutions_X[0]) > 0):
-            predictedSolutions =[]
+        if(len(disagreed_solutions_X[0]) > 0):
+            predicted_solutions =[]
             for i in range(len(classifiers)):
-                classifiers[i].fit(np.array(agreedSolutions_X[i]), np.array(agreedSolutions_Y))
-                predictedSolutions.append(classifiers[i].predict(np.array(disagreedSolutions_X[i])))
+                classifiers[i].fit(np.array(agreed_solutions_X[i]), np.array(agreed_solutions_Y))
+                predicted_solutions.append(classifiers[i].predict(np.array(disagreed_solutions_X[i])))
 
-            predictedSolutions = np.array(predictedSolutions).T
+            predicted_solutions = np.array(predicted_solutions).T
 
-            for solutionIndex in range(len(predictedSolutions)):
+            for solutionIndex in range(len(predicted_solutions)):
                 for i in range(len(classifiers)):
-                    agreedSolutions_X[i].append(disagreedSolutions_X[i][solutionIndex])
-                agreedSolutions_indices.append(disagreedSolution_indices[solutionIndex])
-                agreedSolutions_Y.append(str(predictedSolutions[solutionIndex][0]))
-
+                    agreed_solutions_X[i].append(disagreed_solutions_X[i][solutionIndex])
+                agreed_solutions_indices.append(disagreed_solution_indices[solutionIndex])
+                agreed_solutions_Y.append(str(predicted_solutions[solutionIndex][0]))
 
         solutions_indices = []
 
-        for index in agreedSolutions_indices:
+        for index in agreed_solutions_indices:
             solutions_indices.append(Xn_indices[index])
 
-        return (solutions_indices, agreedSolutions_Y)
+        return (solutions_indices, agreed_solutions_Y)
 
-    def validateClusteringMultiView(self, problem, embeddings):
-        embeddingsUsed = str.join('/', [emb['name'] for emb in embeddings])
-        print(f'Predicting using the multiview clustering validation method using embeddings {embeddingsUsed}:')
+    def _validate_clustering_multi_view(self, problem, embeddings):
+        embeddings_used = str.join('/', [emb['name'] for emb in embeddings])
+        print(f'Predicting using the multiview clustering validation method using embeddings {embeddings_used}:')
 
-        problemDicts = []
+        problem_dicts = []
 
         for embedding in embeddings:
-            problemDicts.append(embedding['problemDict'])
+            problem_dicts.append(embedding['problemDict'])
         
         prediction_Y = []
         Xn_indices = []
-        for data in problemDicts[0].items():
+        for data in problem_dicts[0].items():
             print(f'Predicting problem {problem}')
             Xn = []
             
@@ -260,33 +242,29 @@ class PredictionMethods:
                 Xn.append([])
 
             for index in data['indexes']:
-                indexInAllEmbeddings = True
+                index_in_all_embeddings = True
 
-                for problemDict in problemDicts:
-                    if index not in problemDict[problem]['indexes']:
-                        indexInAllEmbeddings = False
+                for problem_dict in problem_dicts:
+                    if index not in problem_dict[problem]['indexes']:
+                        index_in_all_embeddings = False
                         break
 
-                if(indexInAllEmbeddings):
+                if(index_in_all_embeddings):
                     i = 0
-                    for problemDict in problemDicts:
-                        problemData = problemDict[problem]
-                        Xn[i].append(problemData['X'][problemData['indexes'].index(index)])
+                    for problem_dict in problem_dicts:
+                        problem_data = problem_dict[problem]
+                        Xn[i].append(problem_data['X'][problem_data['indexes'].index(index)])
                         i+=1
                     Xn_indices.append(index)
             
-            allLabels = list(set(Y))
-            k = len(allLabels)
+            all_labels = list(set(Y))
+            k = len(all_labels)
 
-            multiView = MVSC(k)
+            multi_view = MVSC(k)
             
             views = [np.array(Xi) for Xi in Xn]
             is_distance = np.array([False for Xi in Xn])
 
-            prediction_Y = multiView.fit(views, is_distance).embedding_
+            prediction_Y = multi_view.fit(views, is_distance).embedding_
     
         return [Xn_indices, prediction_Y]
-
-
-                
-
