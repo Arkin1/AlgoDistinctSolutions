@@ -1,6 +1,7 @@
 
 from ValidationMethods import ClusteringValidationMethod, EstimatorValidationMethod
 from EmbeddingsLoader import Code2VecEmbeddingsLoader, InfercodeEmbeddingsLoader, W2VEmbeddingsLoader, SafeEmbeddingsLoader, TfidfEmbeddingsLoader, EmbeddingsLoader
+from IValidationPipelines import IValidationPipelines
 import numpy as np
 from sklearn.cluster import KMeans, SpectralClustering, AgglomerativeClustering
 from sklearn.ensemble import RandomForestClassifier
@@ -11,7 +12,7 @@ import os
 import itertools
 
 
-class ValidationPipelines:
+class ValidationPipelines(IValidationPipelines):
     def k_clustering_pipeline(self):
         print("Running KClusteringPipeline...")
 
@@ -172,41 +173,3 @@ class ValidationPipelines:
                     sample_size = str(len(Y_true))
                     
                     self._append_to_csv(csv, [name, embeddings_used, micro_F1, macro_F1, average_F1, sample_size])
-
-    def _create_csv_validation(self, name):
-        if(not os.path.exists('Data/Validation')):
-            os.mkdir('Data/Validation')
-
-        csv = open(f'Data/Validation/{name}.csv', "w")
-
-        return csv
-
-    def _append_to_csv(self, csv, row):
-        csv.write(f"{str.join(',', row)}\n")
-    
-    def _close_csv(self, csv):
-        csv.close()
-
-    def _split_embeddings_data_per_problem(self, embeddings_loader:EmbeddingsLoader):
-
-        print(f"Extracting the {embeddings_loader.get_name()} embeddings from disk")
-
-        problem_dict = {}
-
-        for solution in embeddings_loader.get_embeddings():
-            function_embeddings = np.array(solution["embeddings"])
-            solution_embedding = np.mean(function_embeddings, 0)
-
-            problem = solution['label'].split("$")[0]
-            if(problem not in problem_dict):
-                problem_dict[problem] = {'indexes':[], 'X' : [], 'Y': []}
-
-            problem_dict[problem]['indexes'].append(solution['index'])
-            problem_dict[problem]['X'].append(solution_embedding)
-            problem_dict[problem]['Y'].append(solution['label'])
-        
-        embeddings = {}
-        embeddings['name'] = embeddings_loader.get_name()
-        embeddings['problemDict'] = problem_dict
-
-        return embeddings

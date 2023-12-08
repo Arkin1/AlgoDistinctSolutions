@@ -1,5 +1,7 @@
 # from PredictionMethods import PredictionMethods
 from ValidationPipelines import ValidationPipelines
+from DetermineKValidationPipelines import DetermineKPipelines
+
 from AlgoLabelHelper import AlgoLabelHelper
 from StatisticsHelper import StatisticsHelper
 from OriginalDataDownloader import OriginalDataDownloader
@@ -16,6 +18,7 @@ parser.add_argument('--transform', action='store_true', help='Transform the raw 
 parser.add_argument('--prepare' , action='store_true', help='Prepare the dataset for the training/validation pipeline')
 parser.add_argument('--embeddings', dest='embeddingsTypes',action='append', choices=['w2v', 'c2v' , 'safe', 'tfidf', 'infercode', 'incremental_tfidf'], help='Computes the embeddings for transformed dataset')
 parser.add_argument('--evaluate', action='store_true', help='Evaluates how well the embeddings contribute in the distinct solutions problem')
+parser.add_argument('--evaluate-k-selection', action='store_true', help='Evaluates how well the embeddings contribute to determining the optimal number k')
 
 warnings.filterwarnings("ignore")
 
@@ -49,3 +52,9 @@ if(args.evaluate is True):
     validationPipelines.estimator_pipeline()
     validationPipelines.unsupervised_voting_pipeline()
     validationPipelines.semi_supervised_multiview_spectral_clustering()
+
+if(args.evaluate_k_selection is True):
+    kvalidationPipelines = DetermineKPipelines()
+
+    kvalidationPipelines.k_clustering_pipeline()
+

@@ -39,8 +39,12 @@ class ClusteringValidationMethod:
 
             print(f'Validating problem {problem} using cluster algorithm {type(cluster_algo).__name__}')
 
-            cluster_algo.fit(X)
-            labels = cluster_algo.labels_
+            try:
+                cluster_algo.fit(X, n_jobs = -1)
+                labels = cluster_algo.labels_
+            except:
+                cluster_algo.fit(X)
+                labels = cluster_algo.labels_
             
             best_score = -1
 

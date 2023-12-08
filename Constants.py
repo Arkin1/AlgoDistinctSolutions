@@ -11,3 +11,5 @@ TFIDF_STOP_WORDS = ["(", ")", ".", "#", ";", ",", ">>", "<<", "{", "}", "[", "]"
 TFIDF_TOKEN_PATTERN = "\w+|\+|-|=|!="
 
 NOT_COMPILABLE_PATH = 'not_compilable'
+
+SEED  = 42

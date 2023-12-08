@@ -21,7 +21,7 @@ class OriginalDataDownloader:
                                     showsize=True,
                                     unzip=True)
 
-        os.remove(zipPath)
+        #os.remove(zipPath)
 
     def __downloadEmbeddings(self):
         zipPath = 'Data/Embeddings.zip'
@@ -31,7 +31,7 @@ class OriginalDataDownloader:
                                     showsize=True,
                                     unzip=True)
 
-        os.remove(zipPath)
+        #os.remove(zipPath)
 
     def __removeDataFolder(self):
         if os.path.exists('Data') and os.path.isdir('Data'):
