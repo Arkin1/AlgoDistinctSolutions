@@ -144,7 +144,7 @@ class DetermineKUnsupervised(IValidationPipelines):
         all_hyper_parametrization3 = itertools.product(embeddings_list3_combinations,  clustering_algos3_cartesian_product)
 
         all_hyper_parametrization = [all_hyper_parametrization2, all_hyper_parametrization3]
-        csv = self._create_csv_validation("Unsupervised")
+        csv = self._create_csv_validation("Normal")
 
         csv_columns = ['Problem', 'Embedding', 'Clustering', "Pred_Num_Clusters", "True_Num_Clusters", 'NumSelected', 'Samples_size', 'SiluetteScore']
 
@@ -153,7 +153,6 @@ class DetermineKUnsupervised(IValidationPipelines):
             for cartesian_product in hyperparametrization:
                 embeddings_used = str.join('/', [emb['name'] for emb in cartesian_product[0]])
                 clustering_used = str.join('/', [type(clus).__name__ for clus in cartesian_product[1]])
-
                 embeddings = list(cartesian_product[0])
                 clustering_algos = cartesian_product[1]
                 problem_dicts = []
@@ -195,9 +194,8 @@ class DetermineKUnsupervised(IValidationPipelines):
                                         common_clusters_per_view[i].append(clusters_n[i][problem_data['indexes'].index(index)])
                                         i+=1
                                     Y.append(data['Y'][data['indexes'].index(index)])
-
+                        
                         all_labels = list(set(Y))
-
                                     
                         label_n = np.array(common_clusters_per_view).T
 
@@ -218,12 +216,12 @@ class DetermineKUnsupervised(IValidationPipelines):
                             i+=1
                 
                         mac = MultiAssigmentClustering(grouped_paths, len(cartesian_product[0]), num_clusters)
-                        mac.fit()
-                        best_score = mac.best_score
-                        best_matchings = mac.best_matchings
-                        
-                        if(best_score != -1):
-                            best_matchings.pop()
+                        #mac.fit()
+                        #best_score = mac.best_score
+                        #best_matchings = mac.best_matchings
+                        best_score = 0
+                        # if(best_score != -1):
+                        #     best_matchings.pop()
      
                         # with open(f"Data/UnsupervisedResults/{embeddings_used.replace('/', '_')}-{clustering_used.replace('/', '_')}-{num_clusters}-{problem}.json", 'w') as fp:
                         #     json.dump({
@@ -235,8 +233,8 @@ class DetermineKUnsupervised(IValidationPipelines):
                         if best_score == -1:
                             self._append_to_csv(csv, [problem, embeddings_used, clustering_used, str(num_clusters), str(len(all_labels)), str(best_score), str(label_n.shape[0]), ''])
                         else:
-                            cache_folder = problem + '-' + str.join('-', [type(clus).__name__ for clus in cartesian_product[1]]) + '-' + str.join('-', [emb['name'] for emb in cartesian_product[0]]) + '-' + str(num_clusters)
-                            cache_folder = f'Data/Cached_Unsupervised_Clusterings/{cache_folder}'
+                            #cache_folder = problem + '-' + str.join('-', [type(clus).__name__ for clus in cartesian_product[1]]) + '-' + str.join('-', [emb['name'] for emb in cartesian_product[0]]) + '-' + str(num_clusters)
+                            cache_folder = f'Data/Cached_Simple_Clusterings'
 
                             if not os.path.exists(cache_folder):
                                 os.mkdir(cache_folder)
@@ -244,11 +242,10 @@ class DetermineKUnsupervised(IValidationPipelines):
                             sm = SilhouetteMethod()
                             indices_emb_need_to_extract = []
 
-                            for b_m in best_matchings:
-                                indices_emb_need_to_extract.extend(grouped_paths["$".join([str(e) for e in b_m])])
+                            # for b_m in best_matchings:
+                            #     indices_emb_need_to_extract.extend(grouped_paths["$".join([str(e) for e in b_m])])
 
-                            indices_emb_need_to_extract = indices_emb_need_to_extract
-                            indices_emb_need_to_extract = [selected_indices[ind] for ind in indices_emb_need_to_extract]
+                            indices_emb_need_to_extract = selected_indices
 
                             silluete_scores = []
                             for emb_idx, problem_dict in enumerate(problem_dicts):
@@ -257,7 +254,7 @@ class DetermineKUnsupervised(IValidationPipelines):
                                 
                                 score = sm.determine_silhouette_score(selected_embeddings, clustering_algos[emb_idx], problem, num_clusters, embeddings[emb_idx]['name'], cache_folder)
                                 silluete_scores.append(str(score))
-                            self._append_to_csv(csv, [problem, embeddings_used, clustering_used, str(num_clusters), str(len(all_labels)), str(best_score), str(label_n.shape[0]), "/".join(silluete_scores)])
+                            self._append_to_csv(csv, [problem, embeddings_used, clustering_used, str(num_clusters), str(len(all_labels)), str(len(selected_embeddings)), str(label_n.shape[0]), "/".join(silluete_scores)])
                             
                                 
 
@@ -298,18 +295,18 @@ d.determine()
 
 #         return embeddings
 
-embeddings_list = [_split_embeddings_data_per_problem(Code2VecEmbeddingsLoader()), 
-                _split_embeddings_data_per_problem(SafeEmbeddingsLoader()), 
-                _split_embeddings_data_per_problem(TfidfEmbeddingsLoader()),
-                _split_embeddings_data_per_problem(InfercodeEmbeddingsLoader()),
-                _split_embeddings_data_per_problem(W2VEmbeddingsLoader())]
+# embeddings_list = [_split_embeddings_data_per_problem(Code2VecEmbeddingsLoader()), 
+#                 _split_embeddings_data_per_problem(SafeEmbeddingsLoader()), 
+#                 _split_embeddings_data_per_problem(TfidfEmbeddingsLoader()),
+#                 _split_embeddings_data_per_problem(InfercodeEmbeddingsLoader()),
+#                 _split_embeddings_data_per_problem(W2VEmbeddingsLoader())]
 
-import os
-import json
+# import os
+# import json
 
-for ur_file_name in os.listdir('Data/UnsupervisedResults'):
-    with open(f'Data/UnsupervisedResults/{ur_file_name}', 'r') as fp:
-        result = json.load(ur_file_name)
+# for ur_file_name in os.listdir('Data/UnsupervisedResults'):
+#     with open(f'Data/UnsupervisedResults/{ur_file_name}', 'r') as fp:
+#         result = json.load(ur_file_name)
 
 # import pandas as pd
 # from sklearn.metrics import accuracy_score

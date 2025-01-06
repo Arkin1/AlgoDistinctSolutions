@@ -25,7 +25,7 @@ warnings.filterwarnings("ignore")
 if(not os.path.exists('tmp')):
     os.mkdir('tmp')
 
-args = parser.parse_args()
+args = parser.parse_args(["--evaluate-k-selection"])
 
 algoLabelHelper = AlgoLabelHelper()
 statisticsHelper = StatisticsHelper()
@@ -56,5 +56,5 @@ if(args.evaluate is True):
 if(args.evaluate_k_selection is True):
     kvalidationPipelines = DetermineKPipelines()
 
-    kvalidationPipelines.k_clustering_pipeline()
+    kvalidationPipelines.k_simple_clustering_pipeline()
 

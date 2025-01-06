@@ -4,7 +4,7 @@ from Constants import SEED
 import pickle
 import os
 class SilhouetteMethod:
-    def determineK(self, embeddings, cluster_algo, max_k = 10, cache = False):
+    def determineK(self, embeddings, cluster_algo, max_k = 10, cache = 'Data/Cached_Simple_Clusterings'):
         print(f"Determining the number k using Silhouette score without multiview {embeddings['name']}:")
         problem_dict = embeddings['problemDict']
         
@@ -15,7 +15,7 @@ class SilhouetteMethod:
             k_scores = []
             true_k = list(set(Y))
             for k in range(2, max_k + 1):
-                score = self.determine_silhouette_score(self, X, cluster_algo, problem, k, embeddings['name'], cache)
+                score = self.determine_silhouette_score(X, cluster_algo, problem, k, embeddings['name'], cache)
 
                 k_scores.append((k, true_k, score))
 
@@ -24,7 +24,7 @@ class SilhouetteMethod:
         
         return problem_validation_cluster_k
     
-    def determine_silhouette_score(self, X, cluster_algo, problem, k, embeddings_name, cache_path = 'Data/Cached_Simple_Clustering'):
+    def determine_silhouette_score(self, X, cluster_algo, problem, k, embeddings_name, cache_path = 'Data/Cached_Simple_Clusterings'):
         if not os.path.exists(f"{cache_path}/{type(cluster_algo).__name__}_{embeddings_name}_{problem}_{k}_labels.bin") or not os.path.exists(f"{cache_path}/{type(cluster_algo).__name__}_{embeddings_name}_{problem}_{k}.bin"):
             try:
                 cluster_algo.set_params(n_clusters = k, random_state = SEED)
@@ -38,15 +38,22 @@ class SilhouetteMethod:
             except:
                 cluster_labels = cluster_algo.fit_predict(X)
             
-            with open(f"{cache_path}/{type(cluster_algo).__name__}_{embeddings_name}_{problem}_{k}_labels.bin", 'wb') as fp:
-                pickle.dump(cluster_labels, fp)
-            with open(f"{cache_path}/{type(cluster_algo).__name__}_{embeddings_name}_{problem}_{k}.bin", 'wb') as fp:
-                pickle.dump(cluster_algo, fp)
+            #with open(f"{cache_path}/{type(cluster_algo).__name__}_{embeddings_name}_{problem}_{k}_labels.bin", 'wb') as fp:
+            #    pickle.dump(cluster_labels, fp)
+            #with open(f"{cache_path}/{type(cluster_algo).__name__}_{embeddings_name}_{problem}_{k}.bin", 'wb') as fp:
+            #    pickle.dump(cluster_algo, fp)
         else:
-            raise Exception("NOT LEGAL")
+            #raise Exception("NOT LEGAL")
+            print("Using Cache")
             with open(f"{cache_path}/{type(cluster_algo).__name__}_{embeddings_name}_{problem}_{k}_labels.bin", 'rb') as fp:
                 cluster_labels = pickle.load(fp)
-            with open(f"{cache_path}/{type(cluster_algo).__name__}_{embeddings_name}_{problem}_{k}.bin", 'rb') as fp:
-                cluster_algo = pickle.load(fp)
+            # with open(f"{cache_path}/{type(cluster_algo).__name__}_{embeddings_name}_{problem}_{k}.bin", 'rb') as fp:
+            #     cluster_algo = pickle.load(fp)
 
-        return silhouette_score(X, cluster_labels)
+        score = -1
+        try:
+            score = silhouette_score(X, cluster_labels)
+        except Exception as e:
+            print(e)
+
+        return score
