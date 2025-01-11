@@ -5,9 +5,28 @@ split:
   random_state: 42
 pretrain-embeddings:
   dataset_info_path: 'Data/Dataset/train.json'
-  destination_path: 'Data/Models/w2v/w2v_128.emb'
+  preprocessing_workers: 8
   w2v:
+    destination_dir: 'Data/Models/w2v'
     vector_size: 128
     window: 5
     min_count: 3
     workers: 8
+generate-embeddings:
+  - dataset_info_path: 'Data/Dataset/train.json'
+    preprocessing_workers: 8
+    w2v:
+      destination_dir: 'Data/Embeddings/w2v/train'
+      w2v_model_path: 'Data/Models/w2v/w2v.model'
+
+  - dataset_info_path: 'Data/Dataset/val.json'
+    preprocessing_workers: 8
+    w2v:
+      destination_dir: 'Data/Embeddings/w2v/val'
+      w2v_model_path: 'Data/Models/w2v/w2v.model'
+
+  - dataset_info_path: 'Data/Dataset/test.json'
+    preprocessing_workers: 8
+    w2v:
+      destination_dir: 'Data/Embeddings/w2v/test'
+      w2v_model_path: 'Data/Models/w2v/w2v.model'

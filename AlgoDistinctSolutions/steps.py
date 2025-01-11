@@ -86,18 +86,34 @@ def split_dataset(dataset_path: str,
 
 def pretrain_embeddings(args: dict[str, Any]):
     dataset_info_path = args['dataset_info_path']
-    destination_path = args['destination_path']
-
-    destination_folder = os.path.dirname(destination_path)
-    if not os.path.exists(destination_folder):
-        os.makedirs(destination_folder)
+    preprocessing_workers = args.get('preprocessing_workers', 1)
 
     if 'w2v' in args:
         w2v_facade = Word2VecFacade()
 
         w2v_args = args['w2v']
+        destination_dir = w2v_args.pop('destination_dir')
+
+        w2v_facade.pretrain(dataset_info_path, 
+                            destination_dir,
+                            preprocessing_workers,
+                            **w2v_args)
         
-        w2v_facade.pretrain(dataset_info_path, destination_path, **w2v_args)
+def generate_embeddings(args: list[dict[str, Any]]):
+    for args_dataset in args:
+        dataset_info_path = args_dataset['dataset_info_path']
+        preprocessing_workers = args_dataset.get('preprocessing_workers', 1)
+
+        if 'w2v' in args_dataset:
+            w2v_facade = Word2VecFacade()
+
+            w2v_args = args_dataset['w2v']
+            destination_dir = w2v_args.pop('destination_dir')
+
+            w2v_facade.generate_embeddings(dataset_info_path, 
+                                destination_dir,
+                                preprocessing_workers,
+                                **w2v_args)
 
 
 
