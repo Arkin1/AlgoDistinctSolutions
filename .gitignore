@@ -1,7 +1,4 @@
-Data/*
-AlgoLabel/data/*
-AlgoLabel/datasets/*.json
-env/*
-.vscode/*
+AlgoDistinctSolutions/Data/*
+AlgoDistinctSolutions/AlgoLabel/*
+AlgoDistinctSolutions/tmp/*
 *.pyc
-venv/*

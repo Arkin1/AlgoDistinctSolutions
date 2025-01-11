@@ -1,0 +1,13 @@
+split:
+  dataset_path: 'Data/Dataset'
+  test_ratio: 0.1
+  val_ratio: 0.1
+  random_state: 42
+pretrain-embeddings:
+  dataset_info_path: 'Data/Dataset/train.json'
+  destination_path: 'Data/Models/w2v/w2v_128.emb'
+  w2v:
+    vector_size: 128
+    window: 5
+    min_count: 3
+    workers: 8

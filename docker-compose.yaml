@@ -1,0 +1,10 @@
+services:
+    algo-distinct-solutions:
+        build: ./AlgoDistinctSolutions
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: all
+                          capabilities: [gpu]
