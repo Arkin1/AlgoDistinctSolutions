@@ -1,4 +1,3 @@
-import multiprocessing.pool
 from preprocessing_operations.ReplaceMacrosPreprocessingOp import ReplaceMacrosPreprocessingOp
 from preprocessing_operations.RemoveIncludesUsingPreprocessingOp import RemoveIncludesUsingPreprocessingOp 
 from preprocessing_operations.RemoveCommentsPreprocessingOp import RemoveCommentsPreprocessingOp 
@@ -25,13 +24,13 @@ class Word2VecFacade():
                  destination_dir:str, 
                  preprocessing_workers:int,
                  **kwargs):
-        logger.info("Reading the entire dataset for w2v pretraining")
+        logger.info(f"Reading the entire dataset {dataset_info_path} for w2v pretraining")
         with open(dataset_info_path, 'r', encoding='utf-8') as fp:
             dataset_info = json.load(fp)
         
         source_codes = self._read_all_source_code(dataset_info, os.path.dirname(dataset_info_path))
 
-        logger.info("Preprocessing the entire dataset for w2v pre-training")
+        logger.info(f"Preprocessing the entire dataset {dataset_info_path} for w2v pre-training")
         
         preprocessed_source_codes = tqdm_multiprocess_map(self._preprocessing_fn, source_codes, max_workers= preprocessing_workers, chunksize = 64)
 
@@ -46,7 +45,7 @@ class Word2VecFacade():
     def generate_embeddings(self, dataset_info_path:str,
                                   destination_dir:str, 
                                   preprocessing_workers:int,
-                                  w2v_model_path:str):
+                                  model_path:str):
         logger.info(f"Reading the entire dataset {dataset_info_path} for generating w2v embeddings")
 
         with open(dataset_info_path, 'r', encoding='utf-8') as fp:
@@ -57,7 +56,7 @@ class Word2VecFacade():
         logger.info(f"Preprocessing the entire dataset {dataset_info_path} for w2v embedding generation")
         preprocessed_source_codes = tqdm_multiprocess_map(self._preprocessing_fn, source_codes, max_workers= preprocessing_workers, chunksize = 64)
 
-        w2v = gensim.models.Word2Vec.load(w2v_model_path)
+        w2v = gensim.models.Word2Vec.load(model_path)
         wv = w2v.wv
         
         logger.info(f"Generating embeddings")

@@ -6,27 +6,47 @@ split:
 pretrain-embeddings:
   dataset_info_path: 'Data/Dataset/train.json'
   preprocessing_workers: 8
-  w2v:
-    destination_dir: 'Data/Models/w2v'
-    vector_size: 128
-    window: 5
-    min_count: 3
-    workers: 8
+  # w2v:
+  #   destination_dir: 'Data/Models/w2v'
+  #   vector_size: 128
+  #   window: 5
+  #   min_count: 3
+  #   workers: 8
+  tfidf:
+    destination_dir: 'Data/Models/tfidf'
+    stop_words: ["(", ")", ".", "#", ";", ",", ">>", "<<", "{", "}", "[", "]", "'.'", "\"...\"", ">", "<", "std", 
+                    "fout", "fin", "++", "--", "<=", ">=", "auto", "auto", "bool","break", "case", "char", "char8_t",
+                    "char16_t", "char32_t", "class", "concept", "const", "consteval", "constexpr", "continue", 
+                    "decltype", "default", "do", "double", "else", "enum", "explicit","false", "float", "for",
+                    "if", "inline", "int", "long", "new", "noexcept", "not", "operator", "private", "protected", 
+                    "public", "return", "short", "signed", "sizeof", "static", "struct", "switch", "template", 
+                    "this", "true", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while"]
+    token_pattern: \w+|\+|-|=|!=
+    max_features: 10000
 generate-embeddings:
   - dataset_info_path: 'Data/Dataset/train.json'
     preprocessing_workers: 8
-    w2v:
-      destination_dir: 'Data/Embeddings/w2v/train'
-      w2v_model_path: 'Data/Models/w2v/w2v.model'
+    # w2v:
+    #   destination_dir: 'Data/Embeddings/w2v/train'
+    #   model_path: 'Data/Models/w2v/w2v.model'
+    tfidf:
+      destination_dir: 'Data/Embeddings/tfidf/train'
+      model_path: 'Data/Models/tfidf/tfidf.model'
 
   - dataset_info_path: 'Data/Dataset/val.json'
     preprocessing_workers: 8
-    w2v:
-      destination_dir: 'Data/Embeddings/w2v/val'
-      w2v_model_path: 'Data/Models/w2v/w2v.model'
+    # w2v:
+    #   destination_dir: 'Data/Embeddings/w2v/val'
+    #   model_path: 'Data/Models/w2v/w2v.model'
+    tfidf:
+      destination_dir: 'Data/Embeddings/tfidf/val'
+      model_path: 'Data/Models/tfidf/tfidf.model'
 
   - dataset_info_path: 'Data/Dataset/test.json'
     preprocessing_workers: 8
-    w2v:
-      destination_dir: 'Data/Embeddings/w2v/test'
-      w2v_model_path: 'Data/Models/w2v/w2v.model'
+    # w2v:
+    #   destination_dir: 'Data/Embeddings/w2v/test'
+    #   model_path: 'Data/Models/w2v/w2v.model'
+    tfidf:
+      destination_dir: 'Data/Embeddings/tfidf/test'
+      model_path: 'Data/Models/tfidf/tfidf.model'

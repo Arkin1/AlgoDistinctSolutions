@@ -4,6 +4,7 @@ import json
 import logging
 from typing import Any
 from model_facades.Word2VecFacade import Word2VecFacade
+from model_facades.TfIdfFacade import TfidfFacade
 
 logger = logging.getLogger()
 
@@ -88,32 +89,41 @@ def pretrain_embeddings(args: dict[str, Any]):
     dataset_info_path = args['dataset_info_path']
     preprocessing_workers = args.get('preprocessing_workers', 1)
 
-    if 'w2v' in args:
-        w2v_facade = Word2VecFacade()
+    emb_model_mapping = {
+        "w2v": Word2VecFacade(),
+        "tfidf": TfidfFacade()
+    }
 
-        w2v_args = args['w2v']
-        destination_dir = w2v_args.pop('destination_dir')
+    for emb_model_name, model_facade in emb_model_mapping.items():
+        if emb_model_name in args:
+            model_args = args[emb_model_name]
+            destination_dir = model_args.pop('destination_dir')
 
-        w2v_facade.pretrain(dataset_info_path, 
-                            destination_dir,
-                            preprocessing_workers,
-                            **w2v_args)
+            model_facade.pretrain(dataset_info_path, 
+                                destination_dir,
+                                preprocessing_workers,
+                                **model_args)
         
 def generate_embeddings(args: list[dict[str, Any]]):
     for args_dataset in args:
         dataset_info_path = args_dataset['dataset_info_path']
         preprocessing_workers = args_dataset.get('preprocessing_workers', 1)
 
-        if 'w2v' in args_dataset:
-            w2v_facade = Word2VecFacade()
+        emb_model_mapping = {
+        "w2v": Word2VecFacade(),
+        "tfidf": TfidfFacade()
+        }
 
-            w2v_args = args_dataset['w2v']
-            destination_dir = w2v_args.pop('destination_dir')
+        for emb_model_name, model_facade in emb_model_mapping.items():
+            if emb_model_name in args_dataset:
+                model_args = args_dataset[emb_model_name]
+                destination_dir = model_args.pop('destination_dir')
 
-            w2v_facade.generate_embeddings(dataset_info_path, 
+                model_facade.generate_embeddings(dataset_info_path, 
                                 destination_dir,
                                 preprocessing_workers,
-                                **w2v_args)
+                                **model_args)
+            
 
 
 
