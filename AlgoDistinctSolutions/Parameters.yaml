@@ -26,27 +26,32 @@ pretrain-embeddings:
 generate-embeddings:
   - dataset_info_path: 'Data/Dataset/train.json'
     preprocessing_workers: 8
+    preprocessing_cache_dir: tmp/cache
     # w2v:
     #   destination_dir: 'Data/Embeddings/w2v/train'
     #   model_path: 'Data/Models/w2v/w2v.model'
-    tfidf:
-      destination_dir: 'Data/Embeddings/tfidf/train'
-      model_path: 'Data/Models/tfidf/tfidf.model'
+    # tfidf:
+    #   destination_dir: 'Data/Embeddings/tfidf/train'
+    #   model_path: 'Data/Models/tfidf/tfidf.model'
+    safe:
+      destination_dir: 'Data/Embeddings/safe/train'
+      model_path: 'Data/Models/safe'
 
-  - dataset_info_path: 'Data/Dataset/val.json'
-    preprocessing_workers: 8
-    # w2v:
-    #   destination_dir: 'Data/Embeddings/w2v/val'
-    #   model_path: 'Data/Models/w2v/w2v.model'
-    tfidf:
-      destination_dir: 'Data/Embeddings/tfidf/val'
-      model_path: 'Data/Models/tfidf/tfidf.model'
+  # - dataset_info_path: 'Data/Dataset/val.json'
+  #   preprocessing_workers: 8
+  #   # w2v:
+  #   #   destination_dir: 'Data/Embeddings/w2v/val'
+  #   #   model_path: 'Data/Models/w2v/w2v.model'
+  #   # tfidf:
+  #   #   destination_dir: 'Data/Embeddings/tfidf/val'
+  #   #   model_path: 'Data/Models/tfidf/tfidf.model'
 
-  - dataset_info_path: 'Data/Dataset/test.json'
-    preprocessing_workers: 8
-    # w2v:
-    #   destination_dir: 'Data/Embeddings/w2v/test'
-    #   model_path: 'Data/Models/w2v/w2v.model'
-    tfidf:
-      destination_dir: 'Data/Embeddings/tfidf/test'
-      model_path: 'Data/Models/tfidf/tfidf.model'
+  # - dataset_info_path: 'Data/Dataset/test.json'
+  #   preprocessing_workers: 8
+  #   # w2v:
+  #   #   destination_dir: 'Data/Embeddings/w2v/test'
+  #   #   model_path: 'Data/Models/w2v/w2v.model'
+  #   # tfidf:
+  #   #   destination_dir: 'Data/Embeddings/tfidf/test'
+  #   #   model_path: 'Data/Models/tfidf/tfidf.model'
+    

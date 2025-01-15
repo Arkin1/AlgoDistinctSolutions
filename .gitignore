@@ -2,3 +2,5 @@ AlgoDistinctSolutions/Data/*
 AlgoDistinctSolutions/AlgoLabel/*
 AlgoDistinctSolutions/tmp/*
 *.pyc
+**/build
+*.egg-info
