@@ -6,6 +6,7 @@ from typing import Any
 from model_facades.Word2VecFacade import Word2VecFacade
 from model_facades.TfIdfFacade import TfidfFacade
 from model_facades.SafeFacade import SafeFacade
+from model_facades.UniXcoderFacade import UniXcoderFacade
 
 logger = logging.getLogger()
 
@@ -109,12 +110,12 @@ def generate_embeddings(args: list[dict[str, Any]]):
     for args_dataset in args:
         dataset_info_path = args_dataset['dataset_info_path']
         preprocessing_workers = args_dataset.get('preprocessing_workers', 1)
-        preprocessing_cache_dir = args_dataset.get('preprocessing_cache_dir', None)
 
         emb_model_mapping = {
         "w2v": Word2VecFacade(),
         "tfidf": TfidfFacade(),
-        "safe": SafeFacade()
+        "safe": SafeFacade(),
+        "unixcoder": UniXcoderFacade()
         }
 
         for emb_model_name, model_facade in emb_model_mapping.items():
@@ -122,11 +123,9 @@ def generate_embeddings(args: list[dict[str, Any]]):
                 model_args = args_dataset[emb_model_name]
                 destination_dir = model_args.pop('destination_dir')
                 
-
                 model_facade.generate_embeddings(dataset_info_path, 
                                 destination_dir,
                                 preprocessing_workers,
-                                preprocessing_cache_dir = preprocessing_cache_dir,
                                 **model_args)
             
 

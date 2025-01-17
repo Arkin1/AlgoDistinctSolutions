@@ -26,16 +26,21 @@ pretrain-embeddings:
 generate-embeddings:
   - dataset_info_path: 'Data/Dataset/train.json'
     preprocessing_workers: 8
-    preprocessing_cache_dir: tmp/cache
     # w2v:
     #   destination_dir: 'Data/Embeddings/w2v/train'
     #   model_path: 'Data/Models/w2v/w2v.model'
     # tfidf:
     #   destination_dir: 'Data/Embeddings/tfidf/train'
     #   model_path: 'Data/Models/tfidf/tfidf.model'
-    safe:
-      destination_dir: 'Data/Embeddings/safe/train'
-      model_path: 'Data/Models/safe'
+    # safe:
+    #   destination_dir: 'Data/Embeddings/safe/train'
+    #   model_path: 'Data/Models/safe/safe_trained_X86.pb'
+    #   instr_conv_path: 'Data/Models/safe/i2v/word2id.json'
+    unixcoder:
+      destination_dir: 'Data/Embeddings/unixcoder/train'
+      batch_size: 4
+      max_length: 512
+      padding: true
 
   # - dataset_info_path: 'Data/Dataset/val.json'
   #   preprocessing_workers: 8
@@ -45,6 +50,10 @@ generate-embeddings:
   #   # tfidf:
   #   #   destination_dir: 'Data/Embeddings/tfidf/val'
   #   #   model_path: 'Data/Models/tfidf/tfidf.model'
+  #   safe:
+  #     destination_dir: 'Data/Embeddings/safe/val'
+  #     model_path: 'Data/Models/safe/safe_trained_X86.pb'
+  #     instr_conv_path: 'Data/Models/safe/i2v/word2id.json'
 
   # - dataset_info_path: 'Data/Dataset/test.json'
   #   preprocessing_workers: 8
@@ -54,4 +63,8 @@ generate-embeddings:
   #   # tfidf:
   #   #   destination_dir: 'Data/Embeddings/tfidf/test'
   #   #   model_path: 'Data/Models/tfidf/tfidf.model'
+  #   safe:
+  #     destination_dir: 'Data/Embeddings/safe/test'
+  #     model_path: 'Data/Models/safe/safe_trained_X86.pb'
+  #     instr_conv_path: 'Data/Models/safe/i2v/word2id.json'
     

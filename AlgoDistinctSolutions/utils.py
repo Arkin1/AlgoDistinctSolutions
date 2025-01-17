@@ -1,6 +1,6 @@
 import multiprocessing
 from tqdm import tqdm
-from typing import Any, Union
+from typing import Any, Union, Iterable
 
 def _func_with_idx(el_with_func_idx):
     idx, el, func = el_with_func_idx
@@ -18,3 +18,14 @@ def tqdm_multiprocess_map(func, elements:list[Any], max_workers:int, chunksize:i
     processed_with_idx = sorted(processed_with_idx, key = lambda x: x[0])
 
     return [p for _, p in processed_with_idx]
+
+def to_batches(iterable: Iterable[Any], batch_size) -> Iterable[list[Any]]:
+    batch = []
+    for el in iterable:
+        batch.append(el)
+        if len(batch) == batch_size:
+            yield batch
+            batch = []
+
+    if len(batch) > 0:
+        yield batch

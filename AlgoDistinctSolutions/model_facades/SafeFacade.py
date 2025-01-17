@@ -7,9 +7,9 @@ from tqdm import tqdm
 import json
 import os
 from utils import tqdm_multiprocess_map
-from safe.safe import SAFE
+#from safe.safe import SAFE
 
-import tensorflow
+import pandas as pd
 import numpy as np
 
 logger = logging.getLogger()
@@ -27,19 +27,19 @@ class SafeFacade():
                                   destination_dir:str, 
                                   preprocessing_workers:int,
                                   model_path:str,
-                                  preprocessing_cache_dir:str = None):
+                                  instr_conv_path:str):
         logger.info(f"Reading the entire dataset {dataset_info_path} for generating safe embeddings")
 
         with open(dataset_info_path, 'r', encoding='utf-8') as fp:
             dataset_info = json.load(fp)
        
-        source_codes = self._read_all_source_code(dataset_info, os.path.dirname(dataset_info_path))[:10]
+        source_codes = self._read_all_source_code(dataset_info, os.path.dirname(dataset_info_path))
 
         logger.info(f"Preprocessing the entire dataset {dataset_info_path} for safe embedding generation")
         compiled_source_code_paths = tqdm_multiprocess_map(self._preprocessing_fn, source_codes, max_workers= preprocessing_workers, chunksize = 64)
 
-        embedder = SAFE(model_path = 'Data/Models/safe/safe_trained_X86.pb',
-                        instr_conv= 'Data/Models/safe/i2v/word2id.json',
+        embedder = SAFE(model_path = model_path,
+                        instr_conv= instr_conv_path,
                         max_instr = 150)
 
         logger.info(f"Generating embeddings")
@@ -54,15 +54,23 @@ class SafeFacade():
             else:
                 source_codes_embeddings.append(None)
 
-        # for x in tqdm(source_codes):
-        #     self._preprocessing_fn(x)
 
-        # df = pd.DataFrame({"id":[sample['id'] for sample in dataset_info],  
-        #                    "embeddings": source_codes_embeddings})
+        sample_ids = [sample['id'] for sample in dataset_info]
 
-        # if not os.path.exists(destination_dir):
-        #     os.makedirs(destination_dir)
-        # df.to_parquet(os.path.join(destination_dir, 'embeddings.parquet'))
+        sample_ids_filtered = []
+        source_codes_embeddings_filtered = []
+
+        for sample_id, source_code_embedding in zip(sample_ids, source_codes_embeddings):
+            if source_code_embedding is not None:
+                sample_ids_filtered.append(sample_id)
+                source_codes_embeddings_filtered.append(source_code_embedding)
+        
+        df = pd.DataFrame({"id":sample_ids_filtered,  
+                           "embeddings": source_codes_embeddings_filtered})
+
+        if not os.path.exists(destination_dir):
+            os.makedirs(destination_dir)
+        df.to_parquet(os.path.join(destination_dir, 'embeddings.parquet'))
 
         
 
