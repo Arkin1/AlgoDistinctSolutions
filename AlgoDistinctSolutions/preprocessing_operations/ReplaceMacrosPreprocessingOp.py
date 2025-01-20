@@ -1,9 +1,13 @@
 import os
 from Constants import TMP_FOLDER_PATH
 from uuid import uuid4
+from preprocessing_operations.PreprocessingOp import PreprocessingOp
 
-class ReplaceMacrosPreprocessingOp:
+class ReplaceMacrosPreprocessingOp(PreprocessingOp):
     def preprocess(self, source_code:str) -> str:
+        if not isinstance(source_code, str):
+            raise Exception(f'Source code should be a string. Instead it is {type(source_code)}')
+        
         id_ = f'tmp_{uuid4()}'
 
         source_code_tmp_path = os.path.join(TMP_FOLDER_PATH, f'{id_}.cpp')

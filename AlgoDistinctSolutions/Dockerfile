@@ -10,9 +10,27 @@ RUN git clone https://github.com/radareorg/radare2 && radare2/sys/install.sh
 RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py
 RUN pip install --no-cache-dir torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.0 --index-url https://download.pytorch.org/whl/cu118
 
-# ARG ProjectName=AlgoDistinctSolutions
+RUN pip install --no-cache-dir gdown==5.2.0
 
-# # COPY requirements.txt $ProjectName/requirements.txt
-# # RUN pip install --no-cache-dir -r $ProjectName/requirements.txt 
+#Download unixcoder model
+RUN mkdir -p /app/Data/Pretrained_Models && cd /app/Data/Pretrained_Models && https://huggingface.co/microsoft/unixcoder-base
+
+#Download safe model
+RUN mkdir /app/Data/Pretrained_Models/safe && \
+    cd /app/Data/Pretrained_Models/safe && \
+    gdown https://drive.google.com/uc?id=1Kwl8Jy-g9DXe1AUjUZDhJpjRlDkB4NBs && \
+    gdown https://drive.google.com/uc?id=1CqJVGYbLDEuJmJV6KH4Dzzhy-G12GjGP && \
+    tar -xvjf enginsxt.tar.bz2 && \
+    rm i2v.tar.bz2
+
+ARG ProjectName=AlgoDistinctSolutions
+
+COPY requirements.txt $ProjectName/requirements.txt
+RUN pip install --no-cache-dir -r $ProjectName/requirements.txt 
+
+COPY dependencies  $ProjectName/dependencies
+RUN pip install --no-cache-dir $ProjectName/dependencies/safe
+RUN pip install --no-cache-dir $ProjectName/dependencies/unixcoder
+
 
 # COPY . $ProjectName

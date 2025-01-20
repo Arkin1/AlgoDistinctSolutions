@@ -6,12 +6,12 @@ split:
 pretrain-embeddings:
   dataset_info_path: 'Data/Dataset/train.json'
   preprocessing_workers: 8
-  # w2v:
-  #   destination_dir: 'Data/Models/w2v'
-  #   vector_size: 128
-  #   window: 5
-  #   min_count: 3
-  #   workers: 8
+  w2v:
+    destination_dir: 'Data/Models/w2v'
+    vector_size: 128
+    window: 5
+    min_count: 3
+    workers: 8
   tfidf:
     destination_dir: 'Data/Models/tfidf'
     stop_words: ["(", ")", ".", "#", ";", ",", ">>", "<<", "{", "}", "[", "]", "'.'", "\"...\"", ">", "<", "std", 
@@ -26,45 +26,58 @@ pretrain-embeddings:
 generate-embeddings:
   - dataset_info_path: 'Data/Dataset/train.json'
     preprocessing_workers: 8
-    # w2v:
-    #   destination_dir: 'Data/Embeddings/w2v/train'
-    #   model_path: 'Data/Models/w2v/w2v.model'
-    # tfidf:
-    #   destination_dir: 'Data/Embeddings/tfidf/train'
-    #   model_path: 'Data/Models/tfidf/tfidf.model'
-    # safe:
-    #   destination_dir: 'Data/Embeddings/safe/train'
-    #   model_path: 'Data/Models/safe/safe_trained_X86.pb'
-    #   instr_conv_path: 'Data/Models/safe/i2v/word2id.json'
+    w2v:
+      destination_dir: 'Data/Embeddings/w2v/train'
+      model_path: 'Data/Models/w2v/w2v.model'
+    tfidf:
+      destination_dir: 'Data/Embeddings/tfidf/train'
+      model_path: 'Data/Models/tfidf/tfidf.model'
+    safe:
+      destination_dir: 'Data/Embeddings/safe/train'
+      model_path: 'Data/Models/safe/safe_trained_X86.pb'
+      instr_conv_path: 'Data/Models/safe/i2v/word2id.json'
+      max_instr: 150
     unixcoder:
       destination_dir: 'Data/Embeddings/unixcoder/train'
       batch_size: 4
       max_length: 512
       padding: true
 
-  # - dataset_info_path: 'Data/Dataset/val.json'
-  #   preprocessing_workers: 8
-  #   # w2v:
-  #   #   destination_dir: 'Data/Embeddings/w2v/val'
-  #   #   model_path: 'Data/Models/w2v/w2v.model'
-  #   # tfidf:
-  #   #   destination_dir: 'Data/Embeddings/tfidf/val'
-  #   #   model_path: 'Data/Models/tfidf/tfidf.model'
-  #   safe:
-  #     destination_dir: 'Data/Embeddings/safe/val'
-  #     model_path: 'Data/Models/safe/safe_trained_X86.pb'
-  #     instr_conv_path: 'Data/Models/safe/i2v/word2id.json'
-
-  # - dataset_info_path: 'Data/Dataset/test.json'
-  #   preprocessing_workers: 8
-  #   # w2v:
-  #   #   destination_dir: 'Data/Embeddings/w2v/test'
-  #   #   model_path: 'Data/Models/w2v/w2v.model'
-  #   # tfidf:
-  #   #   destination_dir: 'Data/Embeddings/tfidf/test'
-  #   #   model_path: 'Data/Models/tfidf/tfidf.model'
-  #   safe:
-  #     destination_dir: 'Data/Embeddings/safe/test'
-  #     model_path: 'Data/Models/safe/safe_trained_X86.pb'
-  #     instr_conv_path: 'Data/Models/safe/i2v/word2id.json'
+  - dataset_info_path: 'Data/Dataset/val.json'
+    preprocessing_workers: 8
+    w2v:
+      destination_dir: 'Data/Embeddings/w2v/val'
+      model_path: 'Data/Models/w2v/w2v.model'
+    tfidf:
+      destination_dir: 'Data/Embeddings/tfidf/val'
+      model_path: 'Data/Models/tfidf/tfidf.model'
+    safe:
+      destination_dir: 'Data/Embeddings/safe/val'
+      model_path: 'Data/Models/safe/safe_trained_X86.pb'
+      instr_conv_path: 'Data/Models/safe/i2v/word2id.json'
+      max_instr: 150
+    unixcoder:
+      destination_dir: 'Data/Embeddings/unixcoder/val'
+      batch_size: 4
+      max_length: 512
+      padding: true
+    
+  - dataset_info_path: 'Data/Dataset/test.json'
+    preprocessing_workers: 8
+    w2v:
+      destination_dir: 'Data/Embeddings/w2v/test'
+      model_path: 'Data/Models/w2v/w2v.model'
+    tfidf:
+      destination_dir: 'Data/Embeddings/tfidf/test'
+      model_path: 'Data/Models/tfidf/tfidf.model'
+    safe:
+      destination_dir: 'Data/Embeddings/safe/test'
+      model_path: 'Data/Models/safe/safe_trained_X86.pb'
+      instr_conv_path: 'Data/Models/safe/i2v/word2id.json'
+      max_instr: 150
+    unixcoder:
+      destination_dir: 'Data/Embeddings/unixcoder/test'
+      batch_size: 4
+      max_length: 512
+      padding: true
     

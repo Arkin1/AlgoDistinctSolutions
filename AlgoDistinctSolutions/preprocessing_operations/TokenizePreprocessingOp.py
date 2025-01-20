@@ -2,9 +2,13 @@ import os
 from uuid import uuid4
 from Constants import TMP_FOLDER_PATH, TOKENIZER_PATH
 from subprocess import run
+from preprocessing_operations.PreprocessingOp import PreprocessingOp
 
-class TokenizePreprocessingOp:
+class TokenizePreprocessingOp(PreprocessingOp):
     def preprocess(self, source_code:str) -> list[str]:
+        if not isinstance(source_code, str):
+            raise Exception(f'Source code should be a string. Instead it is {type(source_code)}')
+        
         id_ = f'tmp_{uuid4()}'
 
         source_code_tmp_path = os.path.join(TMP_FOLDER_PATH, f'{id_}.cpp')
