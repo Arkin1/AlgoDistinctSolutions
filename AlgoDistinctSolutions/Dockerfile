@@ -12,25 +12,28 @@ RUN pip install --no-cache-dir torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.
 
 RUN pip install --no-cache-dir gdown==5.2.0
 
-#Download unixcoder model
-RUN mkdir -p /app/Data/Pretrained_Models && cd /app/Data/Pretrained_Models && https://huggingface.co/microsoft/unixcoder-base
+COPY requirements.txt AlgoDistinctSolutions/requirements.txt
+RUN pip install --no-cache-dir -r AlgoDistinctSolutions/requirements.txt 
 
-#Download safe model
+RUN apt install git-lfs && git lfs install
+
+#Download unixcoder model
+RUN mkdir -p /app/Data/Pretrained_Models && cd /app/Data/Pretrained_Models && git clone https://huggingface.co/microsoft/unixcoder-base
+
+#Download codet5plus model
+RUN mkdir -p /app/Data/Pretrained_Models && cd /app/Data/Pretrained_Models && git clone https://huggingface.co/Salesforce/codet5p-110m-embedding
+
+# #Download safe model
 RUN mkdir /app/Data/Pretrained_Models/safe && \
     cd /app/Data/Pretrained_Models/safe && \
     gdown https://drive.google.com/uc?id=1Kwl8Jy-g9DXe1AUjUZDhJpjRlDkB4NBs && \
     gdown https://drive.google.com/uc?id=1CqJVGYbLDEuJmJV6KH4Dzzhy-G12GjGP && \
-    tar -xvjf enginsxt.tar.bz2 && \
+    tar -xvjf i2v.tar.bz2 && \
     rm i2v.tar.bz2
 
-ARG ProjectName=AlgoDistinctSolutions
-
-COPY requirements.txt $ProjectName/requirements.txt
-RUN pip install --no-cache-dir -r $ProjectName/requirements.txt 
-
-COPY dependencies  $ProjectName/dependencies
-RUN pip install --no-cache-dir $ProjectName/dependencies/safe
-RUN pip install --no-cache-dir $ProjectName/dependencies/unixcoder
+COPY dependencies  AlgoDistinctSolutions/dependencies 
+RUN pip install --no-cache-dir AlgoDistinctSolutions/dependencies/safe
+RUN pip install --no-cache-dir AlgoDistinctSolutions/dependencies/unixcoder
 
 
-# COPY . $ProjectName
+COPY . AlgoDistinctSolutions

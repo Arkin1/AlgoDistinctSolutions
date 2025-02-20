@@ -35,23 +35,29 @@ class UniXcoderFacade(BaseFacade):
         batch_size:int = kwargs.pop('batch_size')
         max_length:int = kwargs.pop('max_length')
         padding:bool = kwargs.pop('padding')
+        model_path:str = kwargs.pop('model_path')
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model = UniXcoder("microsoft/unixcoder-base")
+        model = UniXcoder(model_path)
         model.to(device)
 
         logger.info(f"Generating embeddings")
         source_codes_embeddings = []
 
         for functions in tqdm(preprocessed_source_codes):
+            if len(functions) == 0:
+                source_codes_embeddings.append(None)
+                continue
+            
             func_embeddings = []
             for batch_func in to_batches(functions, batch_size):
-                tokens_ids = model.tokenize(batch_func,
-                                            max_length=max_length,
-                                            padding = padding,
-                                            mode="<encoder-only>")
-                source_ids = torch.tensor(tokens_ids).to(device)
-                _,max_func_embedding = model(source_ids)
+                with torch.no_grad():
+                    tokens_ids = model.tokenize(batch_func,
+                                                max_length=max_length,
+                                                padding = padding,
+                                                mode="<encoder-only>")
+                    source_ids = torch.tensor(tokens_ids).to(device)
+                    _,max_func_embedding = model(source_ids)
 
                 func_embeddings.append(max_func_embedding)
             func_embeddings = torch.concat(func_embeddings)

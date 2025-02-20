@@ -58,17 +58,14 @@ class BaseFacade():
         raise NotImplementedError()
 
     def _preprocessing(self, source_codes: list[str], preprocessing_workers:int):
-        logger.info(f"Preprocessing the source codes for {type(self)} pre-training")
-
-        return tqdm_multiprocess_map(self._preprocessing_fn, source_codes, max_workers= preprocessing_workers, chunksize = 64)
+        logger.info(f"Preprocessing the source codes for {type(self)}")
+        preprocessed = tqdm_multiprocess_map(self._preprocessing_fn, source_codes, max_workers= preprocessing_workers, chunksize = 64)
+        return preprocessed
 
     def _read_dataset(self, dataset_info_path:str):
         logger.info(f"Reading the dataset_info from path {dataset_info_path}")
         with open(dataset_info_path, 'r', encoding='utf-8') as fp:
             dataset_info = json.load(fp)
-        
-        #NEED TO REMOVE
-        dataset_info = dataset_info[:10]
         
         dataset_root_path = os.path.dirname(dataset_info_path)
         

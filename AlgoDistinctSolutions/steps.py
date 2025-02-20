@@ -7,6 +7,7 @@ from model_facades.Word2VecFacade import Word2VecFacade
 from model_facades.TfIdfFacade import TfidfFacade
 from model_facades.SafeFacade import SafeFacade
 from model_facades.UniXcoderFacade import UniXcoderFacade
+from model_facades.CodeT5plusFacade import CodeT5plusFacade
 
 logger = logging.getLogger()
 
@@ -115,7 +116,8 @@ def generate_embeddings(args: list[dict[str, Any]]):
         "w2v": Word2VecFacade(),
         "tfidf": TfidfFacade(),
         "safe": SafeFacade(),
-        "unixcoder": UniXcoderFacade()
+        "unixcoder": UniXcoderFacade(),
+        "codet5plus": CodeT5plusFacade()
         }
 
         for emb_model_name, model_facade in emb_model_mapping.items():
